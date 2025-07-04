@@ -1,5 +1,3 @@
-// assets.js
-
 const images = {
   car: new Image(),
   fuel_gold: new Image(),
@@ -20,23 +18,27 @@ const imagePaths = {
   banner_decrease: 'assets/banner_decrease.png',
 };
 
-let imagesLoaded = 0;
-const totalImages = Object.keys(imagePaths).length;
-let onAssetsLoaded = null;
-
 function loadImages(callback) {
-  onAssetsLoaded = callback;
-  for (let key in imagePaths) {
+  let imagesLoaded = 0;
+  const totalImages = Object.keys(imagePaths).length;
+
+  for (const key in imagePaths) {
     images[key].src = imagePaths[key];
     images[key].onload = () => {
       imagesLoaded++;
-      if (imagesLoaded === totalImages && onAssetsLoaded) {
-        onAssetsLoaded();
+      if (imagesLoaded === totalImages) {
+        callback?.();
+      }
+    };
+    images[key].onerror = () => {
+      console.warn(`Failed to load image: ${imagePaths[key]}`);
+      imagesLoaded++;
+      if (imagesLoaded === totalImages) {
+        callback?.();
       }
     };
   }
 }
 
-// Make available to other scripts
 window.images = images;
 window.loadImages = loadImages;
