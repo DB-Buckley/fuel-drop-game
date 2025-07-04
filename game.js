@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - With Updated Game Mechanics & UI Enhancements
+// Mzansi Fuel Drop - With Bonus + Fuel Decrease Fixes
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -44,6 +44,10 @@ let showFuelPriceBanner = false;
 let fuelPriceBannerTimer = 0;
 const fuelPriceBannerDuration = 3000;
 
+let showFuelDecreaseBanner = false;
+let fuelDecreaseTimer = 0;
+const fuelDecreaseBannerDuration = 2000;
+
 if (localStorage.getItem("mzansi_highscore")) {
   highScore = parseInt(localStorage.getItem("mzansi_highscore"));
 }
@@ -65,7 +69,7 @@ function spawnDrop() {
 
   if (!bonusActive && rand < 0.1) {
     drop.bonus = true;
-  } else if (rand < 0.15) {
+  } else if (rand >= 0.1 && rand < 0.11) {
     drop.slowDown = true;
   }
   drops.push(drop);
@@ -117,6 +121,7 @@ function drawHighScore() {
 function drawBanners() {
   if (showBonusBanner) drawText("BONUS ROUND!", canvas.width / 2, 100, 28, true, "#003344");
   if (showFuelPriceBanner) drawText("FUEL PRICE INCREASE!", canvas.width / 2, 140, 26, true, "#FF4444");
+  if (showFuelDecreaseBanner) drawText("FUEL PRICE DECREASE!", canvas.width / 2, 180, 24, true, "#00aa00");
 }
 
 function drawStartScreen() {
@@ -152,7 +157,9 @@ function updateDrops() {
         showBonusBanner = true;
         car.color = car.bonusColor;
       } else if (drop.slowDown) {
-        dropSpeed *= 0.9;
+        dropSpeed *= 0.95;
+        showFuelDecreaseBanner = true;
+        fuelDecreaseTimer = Date.now();
       }
       score += bonusActive ? 25 : 5;
 
@@ -185,6 +192,10 @@ function updateDrops() {
 
   if (showFuelPriceBanner && Date.now() - fuelPriceBannerTimer > fuelPriceBannerDuration) {
     showFuelPriceBanner = false;
+  }
+
+  if (showFuelDecreaseBanner && Date.now() - fuelDecreaseTimer > fuelDecreaseBannerDuration) {
+    showFuelDecreaseBanner = false;
   }
 }
 
@@ -244,6 +255,7 @@ function resetGame() {
   bonusActive = false;
   showBonusBanner = false;
   showFuelPriceBanner = false;
+  showFuelDecreaseBanner = false;
   gameOver = false;
   spawnDrop();
 }
