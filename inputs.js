@@ -1,99 +1,106 @@
-const canvas = window.state.canvas;
-const images = window.state.images;
+(function () {
+  const canvas = window.state.canvas;
+  const car = window.state.car;
+  const PLAY_AREA_LEFT = window.state.PLAY_AREA_LEFT;
+  const PLAY_AREA_WIDTH = window.state.PLAY_AREA_WIDTH;
 
+  let isDragging = false;
 
-let isDragging = false;
-
-function clampCarPosition() {
-  if (car.x < PLAY_AREA_LEFT) {
-    car.x = PLAY_AREA_LEFT;
-  } else if (car.x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH) {
-    car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
-  }
-}
-
-function moveLeft() {
-  car.x -= car.speed;
-  clampCarPosition();
-}
-
-function moveRight() {
-  car.x += car.speed;
-  clampCarPosition();
-}
-
-// Keyboard input
-document.addEventListener("keydown", (e) => {
-  if (!window.state.gameStarted && !window.state.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && window.state.playerName.length < 12) {
-    window.state.playerName += e.key;
-  } else if (!window.state.gameStarted && !window.state.gameOver && e.key === "Backspace") {
-    window.state.playerName = window.state.playerName.slice(0, -1);
-  } else if (!window.state.gameStarted && !window.state.gameOver && e.key === "Enter" && window.state.playerName.length > 0) {
-    startGame();
+  function clampCarPosition() {
+    if (car.x < PLAY_AREA_LEFT) {
+      car.x = PLAY_AREA_LEFT;
+    } else if (car.x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH) {
+      car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
+    }
   }
 
-  if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
-  if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
-
-  if (window.state.gameOver && e.key === "Enter") {
-    resetGame();
-    startGame();
-  }
-});
-
-// Mouse drag (desktop)
-canvas.addEventListener("mousedown", (e) => {
-  if (window.state.gameOver) {
-    resetGame();
-    startGame();
-  } else {
-    isDragging = true;
-    car.x = e.clientX - car.width / 2;
+  function moveLeft() {
+    car.x -= car.speed;
     clampCarPosition();
   }
-});
 
-canvas.addEventListener("mousemove", (e) => {
-  if (isDragging) {
-    car.x = e.clientX - car.width / 2;
+  function moveRight() {
+    car.x += car.speed;
     clampCarPosition();
   }
-});
 
-canvas.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+  // Keyboard input
+  document.addEventListener("keydown", (e) => {
+    const state = window.state;
+    if (!state.gameStarted && !state.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && state.playerName.length < 12) {
+      state.playerName += e.key;
+    } else if (!state.gameStarted && !state.gameOver && e.key === "Backspace") {
+      state.playerName = state.playerName.slice(0, -1);
+    } else if (!state.gameStarted && !state.gameOver && e.key === "Enter" && state.playerName.length > 0) {
+      window.startGame();
+    }
 
-// Touch drag (mobile)
-canvas.addEventListener("touchstart", (e) => {
-  if (window.state.gameOver) {
-    resetGame();
-    startGame();
-  } else {
-    isDragging = true;
-    const touch = e.touches[0];
-    car.x = touch.clientX - car.width / 2;
-    clampCarPosition();
-  }
-});
+    if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
+    if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 
-canvas.addEventListener("touchmove", (e) => {
-  if (isDragging) {
-    const touch = e.touches[0];
-    car.x = touch.clientX - car.width / 2;
-    clampCarPosition();
-  }
-  e.preventDefault(); // Prevent scrolling while dragging
-});
+    if (state.gameOver && e.key === "Enter") {
+      window.resetGame();
+      window.startGame();
+    }
+  });
 
-canvas.addEventListener("touchend", () => {
-  isDragging = false;
-});
+  // Mouse drag (desktop)
+  canvas.addEventListener("mousedown", (e) => {
+    const state = window.state;
+    if (state.gameOver) {
+      window.resetGame();
+      window.startGame();
+    } else {
+      isDragging = true;
+      car.x = e.clientX - car.width / 2;
+      clampCarPosition();
+    }
+  });
 
-// Click to restart game
-canvas.addEventListener("click", () => {
-  if (window.state.gameOver) {
-    resetGame();
-    startGame();
-  }
-});
+  canvas.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+      car.x = e.clientX - car.width / 2;
+      clampCarPosition();
+    }
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
+
+  // Touch drag (mobile)
+  canvas.addEventListener("touchstart", (e) => {
+    const state = window.state;
+    if (state.gameOver) {
+      window.resetGame();
+      window.startGame();
+    } else {
+      isDragging = true;
+      const touch = e.touches[0];
+      car.x = touch.clientX - car.width / 2;
+      clampCarPosition();
+    }
+  });
+
+  canvas.addEventListener("touchmove", (e) => {
+    if (isDragging) {
+      const touch = e.touches[0];
+      car.x = touch.clientX - car.width / 2;
+      clampCarPosition();
+    }
+    e.preventDefault(); // Prevent scrolling while dragging
+  });
+
+  canvas.addEventListener("touchend", () => {
+    isDragging = false;
+  });
+
+  // Click to restart game
+  canvas.addEventListener("click", () => {
+    const state = window.state;
+    if (state.gameOver) {
+      window.resetGame();
+      window.startGame();
+    }
+  });
+})();
