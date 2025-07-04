@@ -1,30 +1,80 @@
-body, html {
+/* Base styles */
+html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
   background: #000;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overscroll-behavior: none;
+  font-family: sans-serif;
+  
+  /* Account for iOS safe areas */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Full-size canvas */
 canvas {
   display: block;
+  width: 100%;
+  height: 100%;
 }
 
-/* Hide mobile controls on desktop */
+/* Mobile controls container */
+#mobile-controls {
+  position: absolute;
+  bottom: env(safe-area-inset-bottom, 10px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 10;
+}
+
+/* Hide on desktop */
 @media (min-width: 768px) {
   #mobile-controls {
-    display: none; /* removed !important */
+    display: none;
   }
 }
 
-/* Show mobile controls on small screens */
+/* Show on mobile */
 @media (max-width: 767px) {
   #mobile-controls {
-    display: flex; /* removed !important */
+    display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 10px auto 0 auto;
+    margin: 0 auto;
     max-width: 320px;
   }
+}
+
+/* Mobile input field */
+#mobile-player-name {
+  font-size: 18px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #000;
+}
+
+/* Mobile start button */
+#mobile-start-btn {
+  margin-top: 10px;
+  font-size: 20px;
+  padding: 12px 20px;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 6px;
+  background-color: #1c63ff;
+  color: white;
+  border: none;
 }
 
 /* Utility class to hide elements */
