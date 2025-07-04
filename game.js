@@ -4,9 +4,12 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const PLAY_AREA_WIDTH = canvas.width * 0.6;
+const PLAY_AREA_LEFT = (canvas.width - PLAY_AREA_WIDTH) / 2;
+
 // PLAYER (Car)
 let car = {
-  x: canvas.width / 2 - 30,
+  x: PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - 30,
   y: canvas.height - 100,
   width: 60,
   height: 30,
@@ -25,13 +28,13 @@ let lastSpawn = 0;
 let score = 0;
 
 // HELPERS
-function randomX() {
-  return Math.random() * (canvas.width - 20);
+function randomDropX() {
+  return PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20);
 }
 
 function spawnDrop() {
   drops.push({
-    x: randomX(),
+    x: randomDropX(),
     y: -20,
     radius: 10,
     caught: false
@@ -57,7 +60,13 @@ function drawScore() {
   ctx.fillText(`Score: ${score}`, 20, 30);
 }
 
-function updateDrops(delta) {
+function drawPlayAreaFrame() {
+  ctx.strokeStyle = "#888";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
+}
+
+function updateDrops() {
   for (let drop of drops) {
     drop.y += dropSpeed;
 
@@ -89,10 +98,14 @@ function clearCanvas() {
 
 function update() {
   car.x += car.dx;
-  if (car.x < 0) car.x = 0;
-  if (car.x + car.width > canvas.width) car.x = canvas.width - car.width;
+
+  // Clamp car inside play area
+  if (car.x < PLAY_AREA_LEFT) car.x = PLAY_AREA_LEFT;
+  if (car.x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH)
+    car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
 
   clearCanvas();
+  drawPlayAreaFrame();
   drawCar();
   updateDrops();
   for (let drop of drops) drawDrop(drop);
@@ -114,22 +127,20 @@ document.addEventListener("keyup", e => {
   if (e.key === "ArrowLeft" || e.key === "ArrowRight") stopMove();
 });
 
-// Touch support
-let touchStartX = null;
+// Touch: drag to position
 canvas.addEventListener("touchstart", e => {
-  touchStartX = e.touches[0].clientX;
-});
-canvas.addEventListener("touchmove", e => {
   const touchX = e.touches[0].clientX;
-  if (touchStartX !== null) {
-    if (touchX < touchStartX) moveLeft();
-    else moveRight();
-  }
-});
-canvas.addEventListener("touchend", () => {
-  stopMove();
-  touchStartX = null;
+  car.x = touchX - car.width / 2;
 });
 
-spawnDrop(); // Start with one drop
+canvas.addEventListener("touchmove", e => {
+  const touchX = e.touches[0].clientX;
+  car.x = touchX - car.width / 2;
+});
+
+canvas.addEventListener("touchend", () => {
+  stopMove();
+});
+
+spawnDrop();
 update();
