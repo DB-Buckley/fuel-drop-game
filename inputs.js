@@ -27,16 +27,12 @@
   // Keyboard input
   document.addEventListener("keydown", (e) => {
     const state = window.state;
-
     if (!state.gameStarted && !state.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && state.playerName.length < 12) {
       state.playerName += e.key;
     } else if (!state.gameStarted && !state.gameOver && e.key === "Backspace") {
       state.playerName = state.playerName.slice(0, -1);
     } else if (!state.gameStarted && !state.gameOver && e.key === "Enter" && state.playerName.length > 0) {
       window.startGame();
-      // Hide mobile controls if any
-      const mobileControls = document.getElementById('mobile-controls');
-      if (mobileControls) mobileControls.style.display = 'none';
     }
 
     if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
@@ -47,8 +43,9 @@
       window.startGame();
     }
 
-    // Pause/unpause keys
-    if (["p", "P", "Escape"].includes(e.key) && state.gameStarted && !state.gameOver) {
+    // Pause keys
+    if (e.key === "p" || e.key === "Escape") {
+      if (!state.gameStarted) return;
       state.paused = !state.paused;
     }
   });
@@ -59,9 +56,6 @@
     if (state.gameOver) {
       window.resetGame();
       window.startGame();
-      // Hide mobile controls
-      const mobileControls = document.getElementById('mobile-controls');
-      if (mobileControls) mobileControls.style.display = 'none';
     } else {
       isDragging = true;
       car.x = e.clientX - car.width / 2;
@@ -86,9 +80,6 @@
     if (state.gameOver) {
       window.resetGame();
       window.startGame();
-      // Hide mobile controls
-      const mobileControls = document.getElementById('mobile-controls');
-      if (mobileControls) mobileControls.style.display = 'none';
     } else {
       isDragging = true;
       const touch = e.touches[0];
@@ -116,31 +107,25 @@
     if (state.gameOver) {
       window.resetGame();
       window.startGame();
-      // Hide mobile controls
-      const mobileControls = document.getElementById('mobile-controls');
-      if (mobileControls) mobileControls.style.display = 'none';
     }
   });
 
-  // Mobile name input and start button logic
-  (function () {
-    const input = document.getElementById('mobile-player-name');
-    const startBtn = document.getElementById('mobile-start-btn');
+  // Mobile Start Button Handler - wait for DOM to be ready
+  document.addEventListener("DOMContentLoaded", () => {
+    const startBtn = document.getElementById("mobile-start-btn");
+    const nameInput = document.getElementById("mobile-player-name");
+    const state = window.state;
 
-    if (input && startBtn) {
-      // Sync input to state
-      input.addEventListener('input', (e) => {
-        window.state.playerName = e.target.value.slice(0, 12);
-      });
-
-      // Start game on button click
-      startBtn.addEventListener('click', () => {
-        if (window.state.playerName && window.state.playerName.trim().length > 0 && !window.state.gameStarted) {
-          window.startGame();
-          // Hide mobile controls after starting
-          document.getElementById('mobile-controls').style.display = 'none';
+    if (startBtn && nameInput) {
+      startBtn.addEventListener("click", () => {
+        const name = nameInput.value.trim();
+        if (name.length === 0) {
+          alert("Please enter your name to start!");
+          return;
         }
+        state.playerName = name;
+        window.startGame();
       });
     }
-  })();
+  });
 })();
