@@ -54,7 +54,7 @@
     drawText(pauseText, canvas.width / 2, 90, 16, true, "#aaa");
 
     const legendX = 20;
-    let legendY = canvas.height - 90;
+    let legendY = canvas.height - 130;
     const imgSize = 24;
     const spacing = 8;
 
@@ -64,8 +64,8 @@
     legendY += imgSize + 10;
     }
 
-    drawLegend(state.images.fuel_gold, "+1 Point");
-    drawLegend(state.images.fuel_bonus, "5× Points (15s)");
+    drawLegend(state.images.fuel_gold, "+10 Points");
+    drawLegend(state.images.fuel_bonus, "3× Points (8s)");
     drawLegend(state.images.fuel_green, "Slows Drops");
 
 
