@@ -77,7 +77,8 @@
       }
     }
 
-    state.drops = state.drops.filter(drop => !drop.caught || drop.y <= state.canvas.height);
+    state.drops = state.drops.filter(drop => !drop.caught);
+
   };
 
   function updateLeaderboard() {
