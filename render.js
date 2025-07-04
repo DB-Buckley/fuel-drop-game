@@ -55,14 +55,14 @@
 
     // Drop Legends (bottom-left)
     drawText("💛 Gold: +10", 20, canvas.height - 80, 16, false, "#f5c400");
-    drawText("💙 Blue: 3× Points (15s)", 20, canvas.height - 55, 16, false, "#00CFFF");
+    drawText("💙 Blue: 3× Points (8s)", 20, canvas.height - 55, 16, false, "#00CFFF");
     drawText("💚 Green: Slows Drops", 20, canvas.height - 30, 16, false, "#00ff88");
 
     // Exit Button (top-right)
-    const btnW = 80;
-    const btnH = 32;
+    const btnW = 70;
+    const btnH = 22;
     const btnX = canvas.width - btnW - 20;
-    const btnY = 20;
+    const btnY = 30;
 
     ctx.fillStyle = "#ff3b3b";
     ctx.fillRect(btnX, btnY, btnW, btnH);
