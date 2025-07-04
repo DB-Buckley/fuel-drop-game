@@ -1,6 +1,23 @@
 (function () {
   const s = window.state;
 
+  function loadAllImages(callback) {
+    let loadedCount = 0;
+    const totalImages = Object.keys(window.images).length;
+
+    for (const key in window.images) {
+      window.images[key].onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) callback();
+      };
+      window.images[key].onerror = () => {
+        console.warn(`Failed to load image: ${key}`);
+        loadedCount++;
+        if (loadedCount === totalImages) callback();
+      };
+    }
+  }
+
   function startGame() {
     s.gameStarted = true;
     s.gameOver = false;
@@ -36,7 +53,7 @@
       window.renderGameOver();
     } else if (s.paused) {
       // Draw paused screen overlay
-      window.render(); // draw current game state
+      window.render();
       const ctx = s.ctx;
       ctx.fillStyle = "rgba(0,0,0,0.6)";
       ctx.fillRect(0, 0, s.canvas.width, s.canvas.height);
@@ -65,4 +82,10 @@
   window.startGame = startGame;
   window.resetGame = resetGame;
   window.mainLoop = mainLoop;
+
+  // Load images before starting game loop and resetting state
+  loadAllImages(() => {
+    resetGame();
+    requestAnimationFrame(mainLoop);
+  });
 })();
