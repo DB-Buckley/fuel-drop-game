@@ -1,4 +1,3 @@
-const images = window.state.images;
 const canvas = window.state.canvas;
 
 const imagePaths = {
