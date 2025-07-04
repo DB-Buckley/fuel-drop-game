@@ -5,6 +5,9 @@ body, html {
   background: #000;
   font-family: Arial, sans-serif;
   color: #fff;
+  /* Add full viewport height for mobile safe area */
+  height: 100vh;
+  box-sizing: border-box;
 }
 
 canvas {
@@ -16,22 +19,32 @@ canvas {
 /* Mobile controls container */
 #mobile-controls {
   display: none; /* Hidden by default, shown on mobile by media query */
-  text-align: center;
-  margin: 10px auto 0 auto;
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 20px); /* iOS safe area */
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   max-width: 320px;
-  padding: 0 10px;
+  padding: 10px 20px 20px 20px;
+  background: rgba(0, 0, 0, 0.8);
+  box-sizing: border-box;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  z-index: 1000;
+  text-align: center;
 }
 
 /* Mobile text input styling */
 #mobile-player-name {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   font-size: 18px;
   border-radius: 6px;
   border: 1px solid #ccc;
   box-sizing: border-box;
   outline: none;
   color: #000;
+  background-color: #fff;
 }
 
 /* Start button styling */
