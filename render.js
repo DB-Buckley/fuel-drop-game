@@ -55,7 +55,7 @@
 
     // Legends
     const legendX = 20;
-    let legendY = canvas.height - 130;
+    let legendY = canvas.height - (isMobile ? 150 : 180);
     const imgSize = 24;
     const spacing = 8;
 
@@ -70,7 +70,6 @@
     drawLegend(state.images.fuel_green, "Slows Drops");
   }
 
-  // Draw the exit button
   function drawExitButton() {
     const isMobile = state.isMobile;
     const btnW = isMobile ? 40 : 80;
@@ -89,6 +88,18 @@
     state.ctx.textAlign = "center";
     state.ctx.textBaseline = "middle";
     state.ctx.fillText(isMobile ? "×" : "Exit", btnX + btnW / 2, btnY + btnH / 2);
+  }
+
+  function drawLogo() {
+    const img = state.images.mzansiLogo;
+    if (!img) return;
+
+    const size = 128;
+    const padding = 20;
+    const x = state.canvas.width - size - padding;
+    const y = padding;
+
+    state.ctx.drawImage(img, x, y, size, size);
   }
 
   function drawBanners() {
@@ -144,6 +155,8 @@
     state.leaderboard.slice(0, 10).forEach((entry, index) => {
       drawText(`${index + 1}. ${entry.name}: ${entry.score}`, state.canvas.width / 2, 350 + index * 24, 16, true);
     });
+
+    drawLogo();
   }
 
   function drawGameOver() {
@@ -156,6 +169,8 @@
 
     const mobileControls = document.getElementById('mobile-controls');
     if (mobileControls) mobileControls.style.display = 'none';
+
+    drawLogo();
   }
 
   window.render = function () {
@@ -165,6 +180,7 @@
     drawTopUI();
     drawBanners();
     drawExitButton();
+    drawLogo();
   };
 
   window.renderStartScreen = drawStartScreen;
