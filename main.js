@@ -1,6 +1,5 @@
 const images = window.state.images;
 const canvas = window.state.canvas;
-let imagesLoaded = false;
 
 const imagePaths = {
   car: 'assets/car.png',
