@@ -202,3 +202,152 @@ document.addEventListener("keydown", e => {
   if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
   if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 });
+
+canvas.addEventListener("click", () => {
+  if (gameOver) {
+    resetGame();
+    startGame();
+  }
+});
+
+function moveLeft() {
+  car.x -= car.speed;
+  if (car.x < PLAY_AREA_LEFT) car.x = PLAY_AREA_LEFT;
+}
+
+function moveRight() {
+  car.x += car.speed;
+  if (car.x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH)
+    car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
+}
+
+function resetGame() {
+  drops = [];
+  score = 0;
+  missedDrops = 0;
+  dropSpeed = 2;
+  spawnInterval = 1500;
+  lastSpawn = 0;
+  lastDropY = -100;
+  lastDropBonus = false;
+  lastDropGreen = false;
+  gameOver = false;
+  bonusActive = false;
+  showBonusBanner = false;
+  showFuelPriceBanner = false;
+  showFuelDecreaseBanner = false;
+  fuelPriceBannerTimer = 0;
+  fuelDecreaseTimer = 0;
+  bonusTimer = 0;
+  fuelIncreases = 0;
+  nextDifficultyThreshold = 300;
+  car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - car.width / 2;
+}
+
+function startGame() {
+  gameStarted = true;
+  resetGame();
+  if (score > highScore) highScore = score;
+}
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (bonusActive) {
+    ctx.fillStyle = "#b3f0ff"; // light blue during bonus
+  } else {
+    ctx.fillStyle = "#111"; // dark background
+  }
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Frame
+  if (!isMobile) {
+    ctx.strokeStyle = bonusActive ? "#333" : "#666";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
+  }
+}
+
+function updateDrops(deltaTime) {
+  for (let drop of drops) {
+    drop.y += dropSpeed * (deltaTime / 16);
+    if (!drop.caught && drop.y + drop.radius >= car.y && drop.y < car.y + car.height &&
+        drop.x >= car.x && drop.x <= car.x + car.width) {
+      drop.caught = true;
+
+      if (drop.bonus) {
+        bonusActive = true;
+        bonusTimer = bonusDuration;
+        showBonusBanner = true;
+        setTimeout(() => showBonusBanner = false, bonusDuration);
+      } else if (drop.slowDown) {
+        dropSpeed *= 0.95;
+        showFuelDecreaseBanner = true;
+        fuelDecreaseTimer = fuelDecreaseBannerDuration;
+        setTimeout(() => showFuelDecreaseBanner = false, fuelDecreaseBannerDuration);
+      } else {
+        score += bonusActive ? 30 : 10;
+      }
+    }
+
+    // Drop missed
+    if (!drop.caught && drop.y > canvas.height) {
+      if (!drop.bonus && !drop.slowDown) {
+        missedDrops++;
+        if (missedDrops >= maxMisses) {
+          gameOver = true;
+          updateLeaderboard();
+        }
+      }
+      drop.caught = true;
+    }
+  }
+
+  drops = drops.filter(drop => !drop.caught || drop.y <= canvas.height);
+}
+
+function mainLoop(timestamp = 0) {
+  if (!gameStarted) {
+    drawStartScreen();
+    requestAnimationFrame(mainLoop);
+    return;
+  }
+
+  const now = Date.now();
+  if (now - lastSpawn > spawnInterval) {
+    spawnDrop();
+    lastSpawn = now;
+  }
+
+  clearCanvas();
+  updateDrops(16);
+  drawCar();
+  for (let drop of drops) drawDrop(drop);
+  drawTopUI();
+  drawBanners();
+
+  // Bonus timer
+  if (bonusActive) {
+    bonusTimer -= 16;
+    if (bonusTimer <= 0) {
+      bonusActive = false;
+    }
+  }
+
+  // Fuel price increase logic
+  if (score >= nextDifficultyThreshold) {
+    fuelIncreases++;
+    dropSpeed *= 1.2;
+    spawnInterval *= 0.9;
+    showFuelPriceBanner = true;
+    fuelPriceBannerTimer = fuelPriceBannerDuration;
+    setTimeout(() => showFuelPriceBanner = false, fuelPriceBannerDuration);
+    nextDifficultyThreshold += 300;
+  }
+
+  if (!gameOver) {
+    requestAnimationFrame(mainLoop);
+  } else {
+    drawGameOver();
+  }
+}
+
