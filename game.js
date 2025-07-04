@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Bonus Fixes + 3x Multiplier
+// Mzansi Fuel Drop - Allow Drops During Bonus, Exclude Blue
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -69,6 +69,7 @@ function spawnDrop() {
     slowDown: false
   };
 
+  // Only allow blue bonus if not currently in bonus round
   if (!bonusActive && rand < 0.1) {
     drop.bonus = true;
   } else if (rand >= 0.1 && rand < 0.11) {
@@ -185,7 +186,7 @@ function updateDrops() {
   }
   drops = drops.filter(d => !d.caught);
 
-  if (!gameOver && !bonusActive && Date.now() - lastSpawn > spawnInterval) {
+  if (!gameOver && Date.now() - lastSpawn > spawnInterval) {
     spawnDrop();
     lastSpawn = Date.now();
   }
