@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Simplified Difficulty, Bonus Fixes
+// Mzansi Fuel Drop - Bonus Fixes + 3x Multiplier
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -164,7 +164,7 @@ function updateDrops() {
         showFuelDecreaseBanner = true;
         fuelDecreaseTimer = Date.now();
       }
-      score += bonusActive ? 50 : 10;
+      score += bonusActive ? 30 : 10;
 
       if (score >= nextDifficultyThreshold) {
         dropSpeed *= 1.15;
@@ -185,7 +185,7 @@ function updateDrops() {
   }
   drops = drops.filter(d => !d.caught);
 
-  if (!gameOver && Date.now() - lastSpawn > spawnInterval) {
+  if (!gameOver && !bonusActive && Date.now() - lastSpawn > spawnInterval) {
     spawnDrop();
     lastSpawn = Date.now();
   }
