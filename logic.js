@@ -25,7 +25,7 @@
     if (!state.bonusActive && !state.lastDropBonus && rand < 0.1) {
       drop.bonus = true;
       state.lastDropBonus = true;
-    } else if (!state.lastDropGreen && state.fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
+    } else if (!state.lastDropGreen && state.fuelIncreases >= 3 && rand >= 0.1 && rand < 0.20) {
       drop.slowDown = true;
       state.lastDropGreen = true;
     } else {
