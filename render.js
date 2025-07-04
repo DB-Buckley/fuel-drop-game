@@ -56,29 +56,20 @@
     }
   }
 
-function drawStartScreen() {
-  clearCanvas();
+  function drawStartScreen() {
+    clearCanvas();
+    drawText("Mzansi Fuel Drop", state.canvas.width / 2, 80, 36, true);
+    drawText("Catch golden drops to score points.", state.canvas.width / 2, 130, 20, true);
+    drawText("Avoid missing drops. 10 misses = Game Over.", state.canvas.width / 2, 160, 18, true);
+    drawText("Bonus (blue) = 3x points. Green = slow speed.", state.canvas.width / 2, 190, 18, true);
 
-  // Existing title and instructions
-  drawText("Mzansi Fuel Drop", state.canvas.width / 2, 80, 36, true);
-  drawText("Catch golden drops to score points.", state.canvas.width / 2, 130, 20, true);
-  drawText("Avoid missing drops. 10 misses = Game Over.", state.canvas.width / 2, 160, 18, true);
-  drawText("Bonus (blue) = 3x points. Green = slow speed.", state.canvas.width / 2, 190, 18, true);
-
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
-  if (!isMobile) {
-    // Show input prompt inside canvas only for desktop
     drawText("Enter your name to begin:", state.canvas.width / 2, 240, 18, true);
     drawText(state.playerName + "_", state.canvas.width / 2, 270, 20, true);
-  }
 
-  drawText("Top 10 High Scores:", state.canvas.width / 2, 320, 20, true);
-  state.leaderboard.slice(0, 10).forEach((entry, index) => {
-    drawText(`${index + 1}. ${entry.name}: ${entry.score}`, state.canvas.width / 2, 350 + index * 24, 16, true);
-  });
-}
-
+    drawText("Top 10 High Scores:", state.canvas.width / 2, 320, 20, true);
+    state.leaderboard.slice(0, 10).forEach((entry, index) => {
+      drawText(`${index + 1}. ${entry.name}: ${entry.score}`, state.canvas.width / 2, 350 + index * 24, 16, true);
+    });
   }
 
   function drawGameOver() {
