@@ -1,12 +1,4 @@
 // main.js
-
-const {
-  canvas, ctx, PLAY_AREA_WIDTH, PLAY_AREA_LEFT,
-  car, drops, maxMisses,
-  isMobile,
-  playerName, leaderboard
-} = state;
-
 let images = {};
 let imagesLoaded = false;
 
