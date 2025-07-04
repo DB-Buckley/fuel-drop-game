@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Image Asset Integration with Controls
+// Mzansi Fuel Drop - Full Game Script with Image Assets and Fixes
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -48,6 +48,10 @@ let gameOver = false;
 let gameStarted = false;
 let playerName = "";
 let highScore = 0;
+
+let showBonusBanner = false;
+let showFuelPriceBanner = false;
+let showFuelDecreaseBanner = false;
 
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -188,16 +192,9 @@ let dragOffsetX = 0;
 
 canvas.addEventListener("mousedown", (e) => {
   if (!gameStarted || gameOver) return;
-
   const mouseX = e.clientX;
   const mouseY = e.clientY;
-
-  if (
-    mouseX >= car.x &&
-    mouseX <= car.x + car.width &&
-    mouseY >= car.y &&
-    mouseY <= car.y + car.height
-  ) {
+  if (mouseX >= car.x && mouseX <= car.x + car.width && mouseY >= car.y && mouseY <= car.y + car.height) {
     isDragging = true;
     dragOffsetX = mouseX - car.x;
   }
@@ -223,13 +220,7 @@ canvas.addEventListener("touchstart", (e) => {
   const touch = e.touches[0];
   const touchX = touch.clientX;
   const touchY = touch.clientY;
-
-  if (
-    touchX >= car.x &&
-    touchX <= car.x + car.width &&
-    touchY >= car.y &&
-    touchY <= car.y + car.height
-  ) {
+  if (touchX >= car.x && touchX <= car.x + car.width && touchY >= car.y && touchY <= car.y + car.height) {
     isDragging = true;
     dragOffsetX = touchX - car.x;
   }
