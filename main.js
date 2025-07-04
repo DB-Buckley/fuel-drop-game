@@ -1,6 +1,5 @@
 // main.js
 
-const { canvas, ctx, car, ... } = window.state;
 let images = {};
 let imagesLoaded = false;
 
