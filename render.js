@@ -56,29 +56,6 @@
     }
   }
 
-  function drawStartScreen() {
-    clearCanvas();
-    drawText("Mzansi Fuel Drop", state.canvas.width / 2, 80, 36, true);
-    drawText("Catch golden drops to score points.", state.canvas.width / 2, 130, 20, true);
-    drawText("Avoid missing drops. 10 misses = Game Over.", state.canvas.width / 2, 160, 18, true);
-    drawText("Bonus (blue) = 3x points. Green = slow speed.", state.canvas.width / 2, 190, 18, true);
-
-    drawText("Enter your name to begin:", state.canvas.width / 2, 240, 18, true);
-    drawText(state.playerName + "_", state.canvas.width / 2, 270, 20, true);
-
-    drawText("Top 10 High Scores:", state.canvas.width / 2, 320, 20, true);
-    state.leaderboard.slice(0, 10).forEach((entry, index) => {
-      drawText(`${index + 1}. ${entry.name}: ${entry.score}`, state.canvas.width / 2, 350 + index * 24, 16, true);
-    });
-  }
-
-  function drawGameOver() {
-    drawText("Game Over", state.canvas.width / 2, state.canvas.height / 2 - 40, 36, true);
-    drawText(`Final Score: ${state.score}`, state.canvas.width / 2, state.canvas.height / 2, 24, true);
-    drawText(`High Score: ${state.highScore}`, state.canvas.width / 2, state.canvas.height / 2 + 30, 24, true);
-    drawText("Tap or press Enter to Retry", state.canvas.width / 2, state.canvas.height / 2 + 70, 24, true);
-  }
-
   function clearCanvas() {
     state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
     state.ctx.fillStyle = state.bonusActive ? "#1c63ff" : "#111";
@@ -89,6 +66,54 @@
       state.ctx.lineWidth = 4;
       state.ctx.strokeRect(state.PLAY_AREA_LEFT, 0, state.PLAY_AREA_WIDTH, state.canvas.height);
     }
+  }
+
+  function drawStartScreen() {
+    clearCanvas();
+
+    drawText("Mzansi Fuel Drop", state.canvas.width / 2, 80, 36, true);
+    drawText("Catch golden drops to score points.", state.canvas.width / 2, 130, 20, true);
+    drawText("Avoid missing drops. 10 misses = Game Over.", state.canvas.width / 2, 160, 18, true);
+    drawText("Bonus (blue) = 3x points. Green = slow speed.", state.canvas.width / 2, 190, 18, true);
+
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+    if (!isMobile) {
+      // Desktop: show input prompt on canvas
+      drawText("Enter your name to begin:", state.canvas.width / 2, 240, 18, true);
+      drawText(state.playerName + "_", state.canvas.width / 2, 270, 20, true);
+
+      // Hide mobile controls if any
+      const mobileControls = document.getElementById('mobile-controls');
+      if (mobileControls) mobileControls.style.display = 'none';
+    } else {
+      // Mobile: show input box and button
+      const mobileControls = document.getElementById('mobile-controls');
+      if (mobileControls) {
+        mobileControls.style.display = 'block';
+        // Sync input value with state.playerName
+        const input = document.getElementById('mobile-player-name');
+        if (input) input.value = state.playerName;
+      }
+    }
+
+    drawText("Top 10 High Scores:", state.canvas.width / 2, 320, 20, true);
+    state.leaderboard.slice(0, 10).forEach((entry, index) => {
+      drawText(`${index + 1}. ${entry.name}: ${entry.score}`, state.canvas.width / 2, 350 + index * 24, 16, true);
+    });
+  }
+
+  function drawGameOver() {
+    clearCanvas();
+
+    drawText("Game Over", state.canvas.width / 2, state.canvas.height / 2 - 40, 36, true);
+    drawText(`Final Score: ${state.score}`, state.canvas.width / 2, state.canvas.height / 2, 24, true);
+    drawText(`High Score: ${state.highScore}`, state.canvas.width / 2, state.canvas.height / 2 + 30, 24, true);
+    drawText("Tap or press Enter to Retry", state.canvas.width / 2, state.canvas.height / 2 + 70, 24, true);
+
+    // Hide mobile controls on game over
+    const mobileControls = document.getElementById('mobile-controls');
+    if (mobileControls) mobileControls.style.display = 'none';
   }
 
   window.render = function () {
