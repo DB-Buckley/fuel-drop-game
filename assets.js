@@ -9,6 +9,7 @@
     banner_bonus: new Image(),
     banner_increase: new Image(),
     banner_decrease: new Image(),
+    mzansiLogo: new Image(),  // <-- Add logo here
   };
 
   const imagePaths = {
@@ -19,6 +20,7 @@
     banner_bonus: 'assets/banner_bonus.png',
     banner_increase: 'assets/banner_increase.png',
     banner_decrease: 'assets/banner_decrease.png',
+    mzansiLogo: 'assets/mzansi_logo.png',  // <-- Add your logo file path here
   };
 
   function loadImages(callback) {
@@ -43,12 +45,11 @@
     }
   }
 
-  // ✅ Attach images to game state so other modules use them
+  // Attach images to game state
   s.images = images;
 
-  // ✅ Load images and start game loop only after that
+  // Load images and start game loop only after that
   loadImages(() => {
     requestAnimationFrame(window.mainLoop);
   });
-
 })();
