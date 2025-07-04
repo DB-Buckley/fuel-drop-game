@@ -14,7 +14,7 @@
     }
   }
 
-  window.clampCarPosition = clampCarPosition; // expose for other uses
+  window.clampCarPosition = clampCarPosition;
 
   function moveLeft() {
     car.x -= car.speed;
@@ -49,14 +49,18 @@
       document.getElementById("mobile-controls")?.classList.add("hidden");
     }
 
-    if (e.key === "p" || e.key === "Escape") {
-      if (!s.gameStarted) return;
+    if ((e.key === "p" || e.key === "Escape") && s.gameStarted) {
       s.paused = !s.paused;
     }
   });
 
-  // --- MOUSE DRAG ---
+  // --- MOUSE DRAG & CLICK ---
   canvas.addEventListener("mousedown", (e) => {
+    if (checkExitClick(e.clientX, e.clientY)) {
+      window.resetGame();
+      return;
+    }
+
     if (s.gameOver) {
       window.resetGame();
       window.startGame();
@@ -79,19 +83,21 @@
     isDragging = false;
   });
 
-  // --- TOUCH DRAG ---
+  // --- TOUCH DRAG & TAP ---
   canvas.addEventListener("touchstart", (e) => {
-    const now = new Date().getTime();
-    const timeDiff = now - lastTap;
-
-    if (timeDiff < 300 && timeDiff > 0) {
-      // Double tap to pause
+    const now = Date.now();
+    if (now - lastTap < 300) {
       if (s.gameStarted && !s.gameOver) {
         s.paused = !s.paused;
       }
     }
-
     lastTap = now;
+
+    const touch = e.touches[0];
+    if (checkExitClick(touch.clientX, touch.clientY)) {
+      window.resetGame();
+      return;
+    }
 
     if (s.gameOver) {
       window.resetGame();
@@ -99,7 +105,6 @@
       document.getElementById("mobile-controls")?.classList.add("hidden");
     } else {
       isDragging = true;
-      const touch = e.touches[0];
       car.x = touch.clientX - car.width / 2;
       clampCarPosition();
     }
@@ -111,7 +116,7 @@
       car.x = touch.clientX - car.width / 2;
       clampCarPosition();
     }
-    e.preventDefault(); // prevent screen scroll
+    e.preventDefault();
   });
 
   canvas.addEventListener("touchend", () => {
@@ -119,7 +124,12 @@
   });
 
   // --- CLICK TO RESTART ---
-  canvas.addEventListener("click", () => {
+  canvas.addEventListener("click", (e) => {
+    if (checkExitClick(e.clientX, e.clientY)) {
+      window.resetGame();
+      return;
+    }
+
     if (s.gameOver) {
       window.resetGame();
       window.startGame();
@@ -145,4 +155,11 @@
       });
     }
   });
+
+  // --- Exit Button Logic ---
+  function checkExitClick(x, y) {
+    const btn = s.exitButton;
+    if (!btn) return false;
+    return x >= btn.x && x <= btn.x + btn.width && y >= btn.y && y <= btn.y + btn.height;
+  }
 })();
