@@ -6,6 +6,10 @@ canvas.height = window.innerHeight;
 
 const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 
+const carImage = new Image();
+carImage.src = 'assets/car.png'; // adjust the path if needed
+
+
 let PLAY_AREA_WIDTH = isMobile ? canvas.width * 0.95 : canvas.width * 0.6;
 let PLAY_AREA_LEFT = (canvas.width - PLAY_AREA_WIDTH) / 2;
 
@@ -68,8 +72,7 @@ function drawFrame() {
 }
 
 function drawCar() {
-  ctx.fillStyle = bonusActive ? '#00CFFF' : car.color;
-  ctx.fillRect(car.x, car.y, car.width, car.height);
+  ctx.drawImage(carImage, car.x, car.y, car.width, car.height);
 }
 
 function drawDrop(drop) {
