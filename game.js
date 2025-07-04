@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Full Updated Script with Start Fix, Banners, Speed, Bonus/Slow Drops
+// Mzansi Fuel Drop - With Updated Game Mechanics & UI Enhancements
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -36,13 +36,17 @@ let gameStarted = false;
 
 let bonusActive = false;
 let bonusTimer = 0;
-const bonusDuration = 15000; // 15s
+const bonusDuration = 15000;
 let showBonusBanner = false;
 
 let speedLevel = 0;
 let showFuelPriceBanner = false;
 let fuelPriceBannerTimer = 0;
 const fuelPriceBannerDuration = 3000;
+
+if (localStorage.getItem("mzansi_highscore")) {
+  highScore = parseInt(localStorage.getItem("mzansi_highscore"));
+}
 
 function randomDropX() {
   return PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20);
@@ -61,7 +65,7 @@ function spawnDrop() {
 
   if (!bonusActive && rand < 0.1) {
     drop.bonus = true;
-  } else if (rand < 0.17) {
+  } else if (rand < 0.15) {
     drop.slowDown = true;
   }
   drops.push(drop);
@@ -89,16 +93,25 @@ function drawText(text, x, y, size = 20, center = false, color = "#fff") {
   ctx.fillText(text, x, y);
 }
 
-function drawScore() {
-  drawText(`Score: ${score}`, 20, 30, 20, false, bonusActive ? "#222" : "#fff");
-}
+function drawTopUI() {
+  ctx.textAlign = "center";
+  const color = bonusActive ? "#222" : "#fff";
+  drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
 
-function drawMisses() {
-  drawText(`Missed: ${missedDrops}/${maxMisses}`, 20, 60, 20, false, bonusActive ? "#222" : "#fff");
+  for (let i = 0; i < maxMisses; i++) {
+    ctx.beginPath();
+    const x = canvas.width / 2 - 120 + i * 25;
+    ctx.arc(x, 60, 8, 0, 2 * Math.PI);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = i < (maxMisses - missedDrops) ? color : "transparent";
+    ctx.lineWidth = 2;
+    ctx.fill();
+    ctx.stroke();
+  }
 }
 
 function drawHighScore() {
-  drawText(`High Score: ${highScore}`, canvas.width - 180, 30, 20, false, bonusActive ? "#222" : "#fff");
+  localStorage.setItem("mzansi_highscore", highScore);
 }
 
 function drawBanners() {
@@ -144,7 +157,7 @@ function updateDrops() {
       score += bonusActive ? 25 : 5;
 
       if (score >= (speedLevel + 1) * 250) {
-        dropSpeed += 0.5;
+        dropSpeed *= 1.15;
         speedLevel++;
         showFuelPriceBanner = true;
         fuelPriceBannerTimer = Date.now();
@@ -179,6 +192,11 @@ function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = bonusActive ? "#e0f7ff" : "#333";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (!isMobile) {
+    ctx.strokeStyle = bonusActive ? "#111" : "#888";
+    ctx.lineWidth = 5;
+    ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
+  }
 }
 
 function update() {
@@ -196,13 +214,14 @@ function update() {
   drawCar();
   updateDrops();
   for (let drop of drops) drawDrop(drop);
-  drawScore();
-  drawHighScore();
-  drawMisses();
+  drawTopUI();
   drawBanners();
 
   if (gameOver) {
-    if (score > highScore) highScore = score;
+    if (score > highScore) {
+      highScore = score;
+      drawHighScore();
+    }
     drawGameOver();
     return;
   }
