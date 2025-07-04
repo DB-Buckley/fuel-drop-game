@@ -52,7 +52,6 @@
     } else if (s.gameOver) {
       window.renderGameOver();
     } else if (s.paused) {
-      // Draw paused screen overlay
       window.render();
       const ctx = s.ctx;
       ctx.fillStyle = "rgba(0,0,0,0.6)";
