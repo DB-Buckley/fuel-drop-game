@@ -89,6 +89,7 @@ function drawStartScreen() {
 }
 
 function drawGameOver() {
+  clearCanvas();
   drawText("Game Over", canvas.width / 2, canvas.height / 2 - 40, 36, true);
   drawText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2, 24, true);
   drawText(`Tap to Retry`, canvas.width / 2, canvas.height / 2 + 40, 24, true);
@@ -101,6 +102,7 @@ function drawBanners() {
 }
 
 function spawnDrop() {
+  if (gameOver) return;
   const rand = Math.random();
   drops.push({
     x: PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20),
@@ -181,6 +183,9 @@ document.addEventListener("keydown", e => {
 
   if (["ArrowLeft", "a", "A"].includes(e.key)) car.x -= car.speed;
   if (["ArrowRight", "d", "D"].includes(e.key)) car.x += car.speed;
+
+  // Clamp car position inside play area
+  car.x = Math.max(PLAY_AREA_LEFT, Math.min(car.x, PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width));
 });
 
 canvas.addEventListener("click", () => {
