@@ -366,7 +366,8 @@ function updateDrops(deltaTime) {
     }
   }
 
-  drops = drops.filter(drop => !drop.caught || drop.y <= canvas.height);
+  // Remove caught drops immediately
+  drops = drops.filter(drop => !drop.caught);
 }
 
 function mainLoop(timestamp = 0) {
