@@ -1,20 +1,14 @@
 (function () {
   const s = window.state;
 
-  function loadAllImages(callback) {
-    let loadedCount = 0;
-    const totalImages = Object.keys(window.images).length;
+  function toggleMobileControls() {
+    const controls = document.getElementById("mobile-controls");
+    if (!controls) return;
 
-    for (const key in window.images) {
-      window.images[key].onload = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) callback();
-      };
-      window.images[key].onerror = () => {
-        console.warn(`Failed to load image: ${key}`);
-        loadedCount++;
-        if (loadedCount === totalImages) callback();
-      };
+    if (s.gameStarted && !s.gameOver) {
+      controls.style.display = "none";
+    } else {
+      controls.style.display = "block";
     }
   }
 
@@ -37,6 +31,8 @@
     s.showBonusBanner = false;
     s.showFuelPriceBanner = false;
     s.showFuelDecreaseBanner = false;
+
+    toggleMobileControls(); // Hide controls on start
   }
 
   function resetGame() {
@@ -44,6 +40,8 @@
     s.gameOver = false;
     s.paused = false;
     s.playerName = "";
+
+    toggleMobileControls(); // Show controls on reset/start screen
   }
 
   function mainLoop(timestamp = 0) {
@@ -51,6 +49,7 @@
       window.renderStartScreen();
     } else if (s.gameOver) {
       window.renderGameOver();
+      toggleMobileControls(); // Show controls if game over
     } else if (s.paused) {
       window.render();
       const ctx = s.ctx;
@@ -77,12 +76,29 @@
     requestAnimationFrame(mainLoop);
   }
 
-  // Expose functions globally for other scripts to use
+  // Expose globally
   window.startGame = startGame;
   window.resetGame = resetGame;
   window.mainLoop = mainLoop;
 
-  // Load images before starting game loop and resetting state
+  // Load images then reset and start main loop
+  function loadAllImages(callback) {
+    let loadedCount = 0;
+    const totalImages = Object.keys(window.images).length;
+
+    for (const key in window.images) {
+      window.images[key].onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) callback();
+      };
+      window.images[key].onerror = () => {
+        console.warn(`Failed to load image: ${key}`);
+        loadedCount++;
+        if (loadedCount === totalImages) callback();
+      };
+    }
+  }
+
   loadAllImages(() => {
     resetGame();
     requestAnimationFrame(mainLoop);
