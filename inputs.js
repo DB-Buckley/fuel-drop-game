@@ -1,14 +1,48 @@
 (function () {
-  const canvas = window.state.canvas;
-  const car = window.state.car;
-  const PLAY_AREA_LEFT = window.state.PLAY_AREA_LEFT;
-  const PLAY_AREA_WIDTH = window.state.PLAY_AREA_WIDTH;
+  const state = window.state;
+
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const mobileControls = document.getElementById('mobileControls');
+  const playerNameInput = document.getElementById('playerNameInput');
+  const startButton = document.getElementById('startButton');
+
+  if (isMobile) {
+    // Show input and button on mobile
+    mobileControls.style.display = 'block';
+
+    playerNameInput.value = state.playerName || '';
+
+    playerNameInput.addEventListener('input', () => {
+      const val = playerNameInput.value.trim();
+      state.playerName = val;
+      startButton.disabled = val.length === 0;
+    });
+
+    startButton.addEventListener('click', () => {
+      if (state.playerName.trim().length > 0) {
+        mobileControls.style.display = 'none';
+        window.startGame();
+      }
+    });
+
+    playerNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!startButton.disabled) {
+          startButton.click();
+        }
+      }
+    });
+  }
+
+  // Car movement and inputs for desktop remain unchanged below
 
   let isDragging = false;
-  let lastTapTime = 0;
-  const DOUBLE_TAP_DELAY = 300; // ms
 
   function clampCarPosition() {
+    const car = state.car;
+    const PLAY_AREA_LEFT = state.PLAY_AREA_LEFT;
+    const PLAY_AREA_WIDTH = state.PLAY_AREA_WIDTH;
     if (car.x < PLAY_AREA_LEFT) {
       car.x = PLAY_AREA_LEFT;
     } else if (car.x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH) {
@@ -17,27 +51,19 @@
   }
 
   function moveLeft() {
+    const car = state.car;
     car.x -= car.speed;
     clampCarPosition();
   }
 
   function moveRight() {
+    const car = state.car;
     car.x += car.speed;
     clampCarPosition();
   }
 
-  // Keyboard input
-  document.addEventListener("keydown", (e) => {
-    const state = window.state;
-
-    // Toggle pause on P or Escape key
-    if (e.key === "p" || e.key === "P" || e.key === "Escape") {
-      if (state.gameStarted && !state.gameOver) {
-        state.paused = !state.paused;
-      }
-    }
-
-    if (!state.paused) {
+  if (!isMobile) {
+    document.addEventListener("keydown", (e) => {
       if (!state.gameStarted && !state.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && state.playerName.length < 12) {
         state.playerName += e.key;
       } else if (!state.gameStarted && !state.gameOver && e.key === "Backspace") {
@@ -48,92 +74,95 @@
 
       if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
       if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
-    }
 
-    if (state.gameOver && e.key === "Enter") {
-      window.resetGame();
-      window.startGame();
-    }
-  });
+      if (state.gameOver && e.key === "Enter") {
+        window.resetGame();
+        window.startGame();
+      }
+    });
 
-  // Mouse drag (desktop)
-  canvas.addEventListener("mousedown", (e) => {
-    const state = window.state;
-    if (state.gameOver) {
-      window.resetGame();
-      window.startGame();
-    } else {
-      isDragging = true;
-      car.x = e.clientX - car.width / 2;
-      clampCarPosition();
-    }
-  });
+    const canvas = state.canvas;
 
-  canvas.addEventListener("mousemove", (e) => {
-    if (isDragging && !window.state.paused) {
-      car.x = e.clientX - car.width / 2;
-      clampCarPosition();
-    }
-  });
+    // Mouse drag (desktop)
+    canvas.addEventListener("mousedown", (e) => {
+      if (state.gameOver) {
+        window.resetGame();
+        window.startGame();
+      } else {
+        isDragging = true;
+        state.car.x = e.clientX - state.car.width / 2;
+        clampCarPosition();
+      }
+    });
 
-  canvas.addEventListener("mouseup", () => {
-    isDragging = false;
-  });
+    canvas.addEventListener("mousemove", (e) => {
+      if (isDragging) {
+        state.car.x = e.clientX - state.car.width / 2;
+        clampCarPosition();
+      }
+    });
 
-  // Touch drag (mobile) + pause toggle on two-finger tap or double tap
-  canvas.addEventListener("touchstart", (e) => {
-    const state = window.state;
+    canvas.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+  }
 
-    if (e.touches.length === 2) {
-      // Two-finger tap toggles pause
-      if (state.gameStarted && !state.gameOver) {
-        state.paused = !state.paused;
+  // Touch drag (mobile)
+  if (isMobile) {
+    const canvas = state.canvas;
+
+    canvas.addEventListener("touchstart", (e) => {
+      if (state.gameOver) {
+        window.resetGame();
+        window.startGame();
+      } else {
+        isDragging = true;
+        const touch = e.touches[0];
+        state.car.x = touch.clientX - state.car.width / 2;
+        clampCarPosition();
+      }
+    });
+
+    canvas.addEventListener("touchmove", (e) => {
+      if (isDragging) {
+        const touch = e.touches[0];
+        state.car.x = touch.clientX - state.car.width / 2;
+        clampCarPosition();
       }
       e.preventDefault();
-      return;
-    }
+    });
 
-    if (e.touches.length === 1) {
-      const now = Date.now();
-      if (now - lastTapTime < DOUBLE_TAP_DELAY) {
-        if (state.gameStarted && !state.gameOver) {
-          state.paused = !state.paused;
-        }
-        e.preventDefault();
+    canvas.addEventListener("touchend", () => {
+      isDragging = false;
+    });
+
+    // Click to restart game on mobile canvas
+    canvas.addEventListener("click", () => {
+      if (state.gameOver) {
+        window.resetGame();
+        mobileControls.style.display = 'block'; // Show input/button on reset
       }
-      lastTapTime = now;
-    }
+    });
+  }
 
-    if (state.gameOver) {
-      window.resetGame();
-      window.startGame();
-    } else if (!state.paused) {
-      isDragging = true;
-      const touch = e.touches[0];
-      car.x = touch.clientX - car.width / 2;
-      clampCarPosition();
-    }
-  });
+  // When game resets, show the controls again on mobile
+  window.resetGame = (function (originalResetGame) {
+    return function () {
+      originalResetGame();
+      if (isMobile) {
+        mobileControls.style.display = 'block';
+        playerNameInput.value = '';
+        startButton.disabled = true;
+      }
+    };
+  })(window.resetGame);
 
-  canvas.addEventListener("touchmove", (e) => {
-    if (isDragging && !window.state.paused) {
-      const touch = e.touches[0];
-      car.x = touch.clientX - car.width / 2;
-      clampCarPosition();
+  // Clear playerName on desktop start to re-enable keyboard typing
+  const origStartGame = window.startGame;
+  window.startGame = function () {
+    if (!isMobile) {
+      state.playerName = '';
     }
-    e.preventDefault(); // Prevent scrolling while dragging
-  });
-
-  canvas.addEventListener("touchend", () => {
-    isDragging = false;
-  });
-
-  // Click to restart game
-  canvas.addEventListener("click", () => {
-    const state = window.state;
-    if (state.gameOver) {
-      window.resetGame();
-      window.startGame();
-    }
-  });
+    origStartGame();
+  };
 })();
