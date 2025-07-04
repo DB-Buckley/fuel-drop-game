@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Updated Scoring and Difficulty Scaling
+// Mzansi Fuel Drop - Adjusted Spawn Rate, Speed, and Miss Logic
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -30,7 +30,7 @@ let lastSpawn = 0;
 let score = 0;
 let highScore = 0;
 let missedDrops = 0;
-const maxMisses = 10;
+const maxMisses = 5;
 let gameOver = false;
 let gameStarted = false;
 
@@ -104,7 +104,7 @@ function drawTopUI() {
 
   for (let i = 0; i < maxMisses; i++) {
     ctx.beginPath();
-    const x = canvas.width / 2 - 120 + i * 25;
+    const x = canvas.width / 2 - 60 + i * 25;
     ctx.arc(x, 60, 8, 0, 2 * Math.PI);
     ctx.strokeStyle = color;
     ctx.fillStyle = i < (maxMisses - missedDrops) ? color : "transparent";
@@ -128,7 +128,7 @@ function drawStartScreen() {
   clearCanvas();
   drawText("Mzansi Fuel Drop", canvas.width / 2, canvas.height / 2 - 80, 36, true);
   drawText("Catch golden drops to score points.", canvas.width / 2, canvas.height / 2 - 40, 22, true);
-  drawText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, canvas.height / 2 - 10, 20, true);
+  drawText("Avoid missing drops. 5 misses = Game Over.", canvas.width / 2, canvas.height / 2 - 10, 20, true);
   drawText("Catch light blue drops for BONUS. Green drops slow speed.", canvas.width / 2, canvas.height / 2 + 20, 18, true);
   drawText("Tap to Start", canvas.width / 2, canvas.height / 2 + 70, 24, true);
 }
@@ -164,8 +164,8 @@ function updateDrops() {
       score += bonusActive ? 75 : 15;
 
       if (score >= (speedLevel + 1) * 250) {
-        dropSpeed *= 1.2;
-        spawnInterval *= 0.95;
+        dropSpeed *= 1.15;
+        spawnInterval *= 0.8;
         speedLevel++;
         showFuelPriceBanner = true;
         fuelPriceBannerTimer = Date.now();
@@ -173,9 +173,11 @@ function updateDrops() {
     }
 
     if (drop.y > canvas.height && !drop.caught) {
-      missedDrops++;
       drop.caught = true;
-      if (missedDrops >= maxMisses) gameOver = true;
+      if (!drop.bonus && !drop.slowDown) {
+        missedDrops++;
+        if (missedDrops >= maxMisses) gameOver = true;
+      }
     }
   }
   drops = drops.filter(d => !d.caught);
