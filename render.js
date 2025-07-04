@@ -53,40 +53,43 @@
     const pauseText = isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause";
     drawText(pauseText, canvas.width / 2, 90, 16, true, "#aaa");
 
+    // Legends
     const legendX = 20;
     let legendY = canvas.height - 130;
     const imgSize = 24;
     const spacing = 8;
 
     function drawLegend(img, label) {
-    state.ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
-    drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
-    legendY += imgSize + 10;
+      state.ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
+      drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
+      legendY += imgSize + 10;
     }
 
     drawLegend(state.images.fuel_gold, "+10 Points");
     drawLegend(state.images.fuel_bonus, "3× Points (8s)");
     drawLegend(state.images.fuel_green, "Slows Drops");
+  }
 
+  // Draw the exit button
+  function drawExitButton() {
+    const isMobile = state.isMobile;
+    const btnW = isMobile ? 40 : 80;
+    const btnH = 32;
+    const btnX = state.canvas.width - btnW - 20;
+    const btnY = isMobile ? state.canvas.height - btnH - 20 : 20;
 
-    // Exit Button (top-right)
-const isMobile = state.isMobile;
-const btnW = isMobile ? 40 : 80;
-const btnH = 32;
-const btnX = state.canvas.width - btnW - 20;
-const btnY = isMobile ? state.canvas.height - btnH - 20 : 20;
+    state.ctx.fillStyle = "rgba(50, 50, 50, 0.7)";
+    state.ctx.strokeStyle = "#fff";
+    state.ctx.lineWidth = 2;
+    state.ctx.fillRect(btnX, btnY, btnW, btnH);
+    state.ctx.strokeRect(btnX, btnY, btnW, btnH);
 
-state.ctx.fillStyle = "rgba(50, 50, 50, 0.7)";
-state.ctx.strokeStyle = "#fff";
-state.ctx.lineWidth = 2;
-state.ctx.fillRect(btnX, btnY, btnW, btnH);
-state.ctx.strokeRect(btnX, btnY, btnW, btnH);
-
-state.ctx.fillStyle = "#fff";
-state.ctx.font = `${isMobile ? 28 : 18}px Arial`;
-state.ctx.textAlign = "center";
-state.ctx.textBaseline = "middle";
-state.ctx.fillText(isMobile ? "×" : "Exit", btnX + btnW / 2, btnY + btnH / 2);
+    state.ctx.fillStyle = "#fff";
+    state.ctx.font = `${isMobile ? 28 : 18}px Arial`;
+    state.ctx.textAlign = "center";
+    state.ctx.textBaseline = "middle";
+    state.ctx.fillText(isMobile ? "×" : "Exit", btnX + btnW / 2, btnY + btnH / 2);
+  }
 
   function drawBanners() {
     if (state.showBonusBanner) {
@@ -161,6 +164,7 @@ state.ctx.fillText(isMobile ? "×" : "Exit", btnX + btnW / 2, btnY + btnH / 2);
     for (let drop of state.drops) drawDrop(drop);
     drawTopUI();
     drawBanners();
+    drawExitButton();
   };
 
   window.renderStartScreen = drawStartScreen;
