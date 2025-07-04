@@ -1,6 +1,7 @@
+// Destructure needed variables from window.state
 const {
-  canvas, ctx, PLAY_AREA_WIDTH, PLAY_AREA_LEFT,
-  car, drops, maxMisses, isMobile,
+  canvas, ctx, car, drops, maxMisses,
+  isMobile, PLAY_AREA_LEFT, PLAY_AREA_WIDTH,
   playerName, leaderboard
 } = window.state;
 
@@ -48,11 +49,11 @@ function drawDrop(drop) {
 
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = window.state.bonusActive ? "#1c63ff" : "#111";
+  ctx.fillStyle = state.bonusActive ? "#1c63ff" : "#111";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   if (!isMobile) {
-    ctx.strokeStyle = window.state.bonusActive ? "#333" : "#666";
+    ctx.strokeStyle = state.bonusActive ? "#333" : "#666";
     ctx.lineWidth = 4;
     ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
   }
@@ -60,17 +61,17 @@ function clearCanvas() {
 
 function drawTopUI() {
   ctx.textAlign = "center";
-  const color = window.state.bonusActive ? "#222" : "#fff";
+  const color = state.bonusActive ? "#222" : "#fff";
   ctx.fillStyle = color;
   ctx.font = "20px Arial";
-  ctx.fillText(`Score: ${window.state.score} | Missed: ${window.state.missedDrops}/${maxMisses} | High Score: ${window.state.highScore}`, canvas.width / 2, 30);
+  ctx.fillText(`Score: ${state.score} | Missed: ${state.missedDrops}/${maxMisses} | High Score: ${state.highScore}`, canvas.width / 2, 30);
 
   for (let i = 0; i < maxMisses; i++) {
     ctx.beginPath();
     const x = canvas.width / 2 - 120 + i * 25;
     ctx.arc(x, 60, 8, 0, 2 * Math.PI);
     ctx.strokeStyle = color;
-    ctx.fillStyle = i < (maxMisses - window.state.missedDrops) ? color : "transparent";
+    ctx.fillStyle = i < (maxMisses - state.missedDrops) ? color : "transparent";
     ctx.lineWidth = 2;
     ctx.fill();
     ctx.stroke();
@@ -78,9 +79,9 @@ function drawTopUI() {
 }
 
 function drawBanners() {
-  if (window.state.showBonusBanner) ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
-  if (window.state.showFuelPriceBanner) ctx.drawImage(images.banner_increase, canvas.width / 2 - 150, 160, 300, 50);
-  if (window.state.showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
+  if (state.showBonusBanner) ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
+  if (state.showFuelPriceBanner) ctx.drawImage(images.banner_increase, canvas.width / 2 - 150, 160, 300, 50);
+  if (state.showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
 }
 
 function drawStartScreen() {
@@ -93,13 +94,12 @@ function drawStartScreen() {
   ctx.fillText("Catch golden drops to score points.", canvas.width / 2, 130);
   ctx.fillText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, 160);
   ctx.fillText("Bonus (blue) = 3x points. Green = slow speed.", canvas.width / 2, 190);
-
   ctx.fillText("Enter your name to begin:", canvas.width / 2, 240);
-  ctx.fillText(window.state.playerName + "_", canvas.width / 2, 270);
+  ctx.fillText(state.playerName + "_", canvas.width / 2, 270);
 
   ctx.fillText("Top 10 High Scores:", canvas.width / 2, 320);
   ctx.font = "16px Arial";
-  window.state.leaderboard.slice(0, 10).forEach((entry, index) => {
+  leaderboard.slice(0, 10).forEach((entry, index) => {
     ctx.fillText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, 350 + index * 24);
   });
 }
@@ -111,17 +111,17 @@ function drawGameOver() {
   ctx.font = "36px Arial";
   ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 40);
   ctx.font = "24px Arial";
-  ctx.fillText(`Final Score: ${window.state.score}`, canvas.width / 2, canvas.height / 2);
-  ctx.fillText(`High Score: ${window.state.highScore}`, canvas.width / 2, canvas.height / 2 + 30);
+  ctx.fillText(`Final Score: ${state.score}`, canvas.width / 2, canvas.height / 2);
+  ctx.fillText(`High Score: ${state.highScore}`, canvas.width / 2, canvas.height / 2 + 30);
   ctx.fillText("Tap or Press Enter to Retry", canvas.width / 2, canvas.height / 2 + 70);
 }
 
 function spawnDrop() {
-  if (window.state.gameOver) return;
+  if (state.gameOver) return;
 
   let newY = -20;
-  if (Math.abs(newY - window.state.lastDropY) < 30) newY -= 30;
-  window.state.lastDropY = newY;
+  if (Math.abs(newY - state.lastDropY) < 30) newY -= 30;
+  state.lastDropY = newY;
 
   const rand = Math.random();
   let drop = {
@@ -133,47 +133,48 @@ function spawnDrop() {
     slowDown: false,
   };
 
-  if (!window.state.bonusActive && !window.state.lastDropBonus && rand < 0.1) {
+  if (!state.bonusActive && !state.lastDropBonus && rand < 0.1) {
     drop.bonus = true;
-    window.state.lastDropBonus = true;
-  } else if (!window.state.lastDropGreen && window.state.fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
+    state.lastDropBonus = true;
+  } else if (!state.lastDropGreen && state.fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
     drop.slowDown = true;
-    window.state.lastDropGreen = true;
+    state.lastDropGreen = true;
   } else {
-    window.state.lastDropBonus = false;
-    window.state.lastDropGreen = false;
+    state.lastDropBonus = false;
+    state.lastDropGreen = false;
   }
 
-  window.state.drops.push(drop);
+  drops.push(drop);
 }
 
 function updateDrops(deltaTime) {
-  for (let drop of window.state.drops) {
-    drop.y += window.state.dropSpeed * (deltaTime / 16);
+  for (let drop of drops) {
+    drop.y += state.dropSpeed * (deltaTime / 16);
+
     if (!drop.caught && drop.y + drop.radius >= car.y && drop.y < car.y + car.height &&
         drop.x >= car.x && drop.x <= car.x + car.width) {
       drop.caught = true;
 
       if (drop.bonus) {
-        window.state.bonusActive = true;
-        window.state.bonusTimer = window.state.bonusDuration;
-        window.state.showBonusBanner = true;
-        setTimeout(() => window.state.showBonusBanner = false, window.state.bonusDuration);
+        state.bonusActive = true;
+        state.bonusTimer = state.bonusDuration;
+        state.showBonusBanner = true;
+        setTimeout(() => state.showBonusBanner = false, state.bonusDuration);
       } else if (drop.slowDown) {
-        window.state.dropSpeed *= 0.95;
-        window.state.showFuelDecreaseBanner = true;
-        window.state.fuelDecreaseTimer = window.state.fuelDecreaseBannerDuration;
-        setTimeout(() => window.state.showFuelDecreaseBanner = false, window.state.fuelDecreaseBannerDuration);
+        state.dropSpeed *= 0.95;
+        state.showFuelDecreaseBanner = true;
+        state.fuelDecreaseTimer = state.fuelDecreaseBannerDuration;
+        setTimeout(() => state.showFuelDecreaseBanner = false, state.fuelDecreaseBannerDuration);
       } else {
-        window.state.score += window.state.bonusActive ? 30 : 10;
+        state.score += state.bonusActive ? 30 : 10;
       }
     }
 
     if (!drop.caught && drop.y > canvas.height) {
       if (!drop.bonus && !drop.slowDown) {
-        window.state.missedDrops++;
-        if (window.state.missedDrops >= maxMisses) {
-          window.state.gameOver = true;
+        state.missedDrops++;
+        if (state.missedDrops >= maxMisses) {
+          state.gameOver = true;
           updateLeaderboard();
         }
       }
@@ -181,68 +182,61 @@ function updateDrops(deltaTime) {
     }
   }
 
-  window.state.drops = window.state.drops.filter(drop => !drop.caught || drop.y <= canvas.height);
+  // Remove offscreen or caught drops
+  state.drops = drops.filter(drop => !drop.caught || drop.y <= canvas.height);
 }
 
 function updateLeaderboard() {
-  window.state.leaderboard.push({ name: window.state.playerName || "Anon", score: window.state.score });
-  window.state.leaderboard.sort((a, b) => b.score - a.score);
-  window.state.leaderboard = window.state.leaderboard.slice(0, 10);
-  localStorage.setItem("mzansi_leaderboard", JSON.stringify(window.state.leaderboard));
+  leaderboard.push({ name: playerName || "Anon", score: state.score });
+  leaderboard.sort((a, b) => b.score - a.score);
+  state.leaderboard = leaderboard.slice(0, 10);
+  localStorage.setItem("mzansi_leaderboard", JSON.stringify(state.leaderboard));
 }
 
 function mainLoop(timestamp = 0) {
   if (!imagesLoaded) return;
 
-  if (!window.state.gameStarted) {
+  if (!state.gameStarted) {
     drawStartScreen();
-  } else if (window.state.gameOver) {
+  } else if (state.gameOver) {
     drawGameOver();
   } else {
     const now = Date.now();
 
-    if (now - window.state.lastSpawn > window.state.spawnInterval) {
+    if (now - state.lastSpawn > state.spawnInterval) {
       spawnDrop();
-      window.state.lastSpawn = now;
+      state.lastSpawn = now;
     }
 
     clearCanvas();
     updateDrops(16);
     drawCar();
-    for (let drop of window.state.drops) drawDrop(drop);
+    for (let drop of drops) drawDrop(drop);
     drawTopUI();
     drawBanners();
 
-    // Bonus timer
-    if (window.state.bonusActive) {
-      window.state.bonusTimer -= 16;
-      if (window.state.bonusTimer <= 0) {
-        window.state.bonusActive = false;
+    // Bonus logic
+    if (state.bonusActive) {
+      state.bonusTimer -= 16;
+      if (state.bonusTimer <= 0) {
+        state.bonusActive = false;
       }
     }
 
-    // Fuel price increase logic
-    if (window.state.score >= window.state.nextDifficultyThreshold) {
-      window.state.fuelIncreases++;
-      window.state.dropSpeed *= 1.2;
-      window.state.spawnInterval *= 0.9;
-      window.state.showFuelPriceBanner = true;
-      window.state.fuelPriceBannerTimer = window.state.fuelPriceBannerDuration;
-      setTimeout(() => window.state.showFuelPriceBanner = false, window.state.fuelPriceBannerDuration);
-      window.state.nextDifficultyThreshold += 300;
+    // Increase difficulty
+    if (state.score >= state.nextDifficultyThreshold) {
+      state.fuelIncreases++;
+      state.dropSpeed *= 1.2;
+      state.spawnInterval *= 0.9;
+      state.showFuelPriceBanner = true;
+      state.fuelPriceBannerTimer = state.fuelPriceBannerDuration;
+      setTimeout(() => state.showFuelPriceBanner = false, state.fuelPriceBannerDuration);
+      state.nextDifficultyThreshold += 300;
     }
   }
 
   requestAnimationFrame(mainLoop);
 }
 
-function setupInputs() {
-  // This function is usually in inputs.js, but you can call it here or keep separate
-  // Assuming inputs.js calls startGame() and resetGame() that are global.
-
-  // Add event listeners here if you want to keep inputs.js minimal
-}
-
-// Start the game
+// Kick off
 loadImages();
-// setupInputs() should be called from inputs.js or here if you prefer
