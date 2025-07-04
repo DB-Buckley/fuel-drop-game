@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Spawn Rules Improved
+// Mzansi Fuel Drop - Leaderboard + Asset Support
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -9,6 +9,25 @@ const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 
 let PLAY_AREA_WIDTH = isMobile ? canvas.width * 0.95 : canvas.width * 0.6;
 let PLAY_AREA_LEFT = (canvas.width - PLAY_AREA_WIDTH) / 2;
+
+// Load images
+const images = {
+  car: new Image(),
+  fuel_gold: new Image(),
+  fuel_bonus: new Image(),
+  fuel_green: new Image(),
+  banner_bonus: new Image(),
+  banner_increase: new Image(),
+  banner_decrease: new Image(),
+};
+
+images.car.src = 'assets/car.png';
+images.fuel_gold.src = 'assets/fuel_gold.png';
+images.fuel_bonus.src = 'assets/fuel_bonus.png';
+images.fuel_green.src = 'assets/fuel_green.png';
+images.banner_bonus.src = 'assets/banner_bonus.png';
+images.banner_increase.src = 'assets/banner_increase.png';
+images.banner_decrease.src = 'assets/banner_decrease.png';
 
 let car = {
   x: PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - 30,
@@ -53,9 +72,8 @@ const fuelDecreaseBannerDuration = 2000;
 
 let nextDifficultyThreshold = 500;
 
-if (localStorage.getItem("mzansi_highscore")) {
-  highScore = parseInt(localStorage.getItem("mzansi_highscore"));
-}
+let playerName = "";
+let leaderboard = JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]");
 
 function randomDropX() {
   return PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20);
@@ -64,7 +82,6 @@ function randomDropX() {
 function spawnDrop() {
   if (gameOver) return;
 
-  // Prevent drops spawning at same height
   let newY = -20;
   if (Math.abs(newY - lastDropY) < 30) newY -= 30;
   lastDropY = newY;
@@ -79,16 +96,10 @@ function spawnDrop() {
     slowDown: false
   };
 
-  // Only one bonus drop at a time
   if (!bonusActive && !lastDropBonus && rand < 0.1) {
     drop.bonus = true;
     lastDropBonus = true;
-  } else if (
-    !lastDropGreen &&
-    fuelIncreases >= 3 &&
-    rand >= 0.1 &&
-    rand < 0.12
-  ) {
+  } else if (!lastDropGreen && fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
     drop.slowDown = true;
     lastDropGreen = true;
   } else {
@@ -100,18 +111,14 @@ function spawnDrop() {
 }
 
 function drawCar() {
-  ctx.fillStyle = car.color;
-  ctx.fillRect(car.x, car.y, car.width, car.height);
+  ctx.drawImage(images.car, car.x, car.y, car.width, car.height);
 }
 
 function drawDrop(drop) {
-  ctx.beginPath();
-  ctx.arc(drop.x, drop.y, drop.radius, 0, Math.PI * 2);
-  if (drop.bonus) ctx.fillStyle = "#00CFFF";
-  else if (drop.slowDown) ctx.fillStyle = "#7ED957";
-  else ctx.fillStyle = "gold";
-  ctx.fill();
-  ctx.closePath();
+  let img = images.fuel_gold;
+  if (drop.bonus) img = images.fuel_bonus;
+  else if (drop.slowDown) img = images.fuel_green;
+  ctx.drawImage(img, drop.x - drop.radius, drop.y - drop.radius, drop.radius * 2, drop.radius * 2);
 }
 
 function drawText(text, x, y, size = 20, center = false, color = "#fff") {
@@ -125,7 +132,6 @@ function drawTopUI() {
   ctx.textAlign = "center";
   const color = bonusActive ? "#222" : "#fff";
   drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
-
   for (let i = 0; i < maxMisses; i++) {
     ctx.beginPath();
     const x = canvas.width / 2 - 120 + i * 25;
@@ -138,23 +144,26 @@ function drawTopUI() {
   }
 }
 
-function drawHighScore() {
-  localStorage.setItem("mzansi_highscore", highScore);
-}
-
 function drawBanners() {
-  if (showBonusBanner) drawText("BONUS ROUND!", canvas.width / 2, 100, 28, true, "#003344");
-  if (showFuelPriceBanner) drawText("FUEL PRICE INCREASE!", canvas.width / 2, 140, 26, true, "#FF4444");
-  if (showFuelDecreaseBanner) drawText("FUEL PRICE DECREASE!", canvas.width / 2, 180, 24, true, "#00aa00");
+  if (showBonusBanner) ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
+  if (showFuelPriceBanner) ctx.drawImage(images.banner_increase, canvas.width / 2 - 150, 160, 300, 50);
+  if (showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
 }
 
 function drawStartScreen() {
   clearCanvas();
-  drawText("Mzansi Fuel Drop", canvas.width / 2, canvas.height / 2 - 80, 36, true);
-  drawText("Catch golden drops to score points.", canvas.width / 2, canvas.height / 2 - 40, 22, true);
-  drawText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, canvas.height / 2 - 10, 20, true);
-  drawText("Catch light blue drops for BONUS. Green drops slow speed.", canvas.width / 2, canvas.height / 2 + 20, 18, true);
-  drawText("Tap to Start", canvas.width / 2, canvas.height / 2 + 70, 24, true);
+  drawText("Mzansi Fuel Drop", canvas.width / 2, 80, 36, true);
+  drawText("Catch golden drops to score points.", canvas.width / 2, 130, 20, true);
+  drawText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, 160, 18, true);
+  drawText("Bonus (blue) = 3x points. Green = slow speed.", canvas.width / 2, 190, 18, true);
+
+  drawText("Enter your name to begin:", canvas.width / 2, 240, 18, true);
+  drawText(playerName + "_", canvas.width / 2, 270, 20, true);
+
+  drawText("Top 10 High Scores:", canvas.width / 2, 320, 20, true);
+  leaderboard.slice(0, 10).forEach((entry, index) => {
+    drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, 350 + index * 24, 16, true);
+  });
 }
 
 function drawGameOver() {
@@ -162,6 +171,13 @@ function drawGameOver() {
   drawText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2, 24, true);
   drawText(`High Score: ${highScore}`, canvas.width / 2, canvas.height / 2 + 30, 24, true);
   drawText("Tap to Retry", canvas.width / 2, canvas.height / 2 + 70, 24, true);
+}
+
+function updateLeaderboard() {
+  leaderboard.push({ name: playerName || "Anon", score });
+  leaderboard.sort((a, b) => b.score - a.score);
+  leaderboard = leaderboard.slice(0, 10);
+  localStorage.setItem("mzansi_leaderboard", JSON.stringify(leaderboard));
 }
 
 function updateDrops() {
@@ -202,7 +218,10 @@ function updateDrops() {
       drop.caught = true;
       if (!drop.bonus && !drop.slowDown) {
         missedDrops++;
-        if (missedDrops >= maxMisses) gameOver = true;
+        if (missedDrops >= maxMisses) {
+          gameOver = true;
+          updateLeaderboard();
+        }
       }
     }
   }
@@ -262,10 +281,7 @@ function update() {
   drawTopUI();
   drawBanners();
 
-  if (score > highScore) {
-    highScore = score;
-    drawHighScore();
-  }
+  if (score > highScore) highScore = score;
 }
 
 function mainLoop() {
@@ -295,6 +311,7 @@ function resetGame() {
 }
 
 function startGame() {
+  if (!playerName) return;
   gameStarted = true;
   resetGame();
 }
@@ -304,6 +321,12 @@ function moveRight() { car.dx = car.speed; }
 function stopMove() { car.dx = 0; }
 
 document.addEventListener("keydown", e => {
+  if (!gameStarted && !gameOver && playerName.length < 12 && /^[a-zA-Z0-9 ]$/.test(e.key)) {
+    playerName += e.key;
+  } else if (!gameStarted && !gameOver && e.key === "Backspace") {
+    playerName = playerName.slice(0, -1);
+  }
+
   if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
   if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 });
@@ -313,7 +336,7 @@ document.addEventListener("keyup", e => {
 
 let isDragging = false;
 canvas.addEventListener("touchstart", e => {
-  if (!gameStarted) return startGame();
+  if (!gameStarted && playerName) return startGame();
   if (gameOver) return resetGame();
   const x = e.touches[0].clientX;
   car.x = x - car.width / 2;
@@ -323,7 +346,7 @@ canvas.addEventListener("touchmove", e => {
   car.x = x - car.width / 2;
 });
 canvas.addEventListener("mousedown", e => {
-  if (!gameStarted) return startGame();
+  if (!gameStarted && playerName) return startGame();
   if (gameOver) return resetGame();
   isDragging = true;
   car.x = e.clientX - car.width / 2;
@@ -333,7 +356,7 @@ canvas.addEventListener("mousemove", e => {
 });
 canvas.addEventListener("mouseup", () => { isDragging = false; stopMove(); });
 canvas.addEventListener("click", () => {
-  if (!gameStarted) return startGame();
+  if (!gameStarted && playerName) return startGame();
   if (gameOver) return resetGame();
 });
 
