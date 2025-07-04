@@ -6,9 +6,9 @@
     if (!controls) return;
 
     if (s.gameStarted && !s.gameOver) {
-      controls.style.display = "none";
+      controls.classList.add("hidden");
     } else {
-      controls.style.display = "block";
+      controls.classList.remove("hidden");
     }
   }
 
