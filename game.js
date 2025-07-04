@@ -1,3 +1,8 @@
+<canvas id="gameCanvas"></canvas>
+<input id="hiddenInput" type="text" maxlength="12" 
+  style="position:absolute; top:-100px; left:-100px; opacity:0;" />
+
+<script>
 // Mzansi Fuel Drop - PNG Asset Version
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -44,11 +49,7 @@ let car = {
   y: canvas.height - 100,
   width: 60,
   height: 30,
-  baseColor: "#F5A623",
-  bonusColor: "#00CFFF",
-  color: "#F5A623",
-  speed: 7,
-  dx: 0
+  speed: 7
 };
 
 let drops = [];
@@ -80,13 +81,10 @@ let showFuelDecreaseBanner = false;
 let fuelDecreaseTimer = 0;
 const fuelDecreaseBannerDuration = 2000;
 
-let nextDifficultyThreshold = 300;
+let nextDifficultyThreshold = 500;
 
 let playerName = "";
 let leaderboard = JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]");
-
-// Reference to hidden input element
-const nameInput = document.getElementById("nameInput");
 
 function randomDropX() {
   return PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20);
@@ -193,20 +191,6 @@ function updateLeaderboard() {
   localStorage.setItem("mzansi_leaderboard", JSON.stringify(leaderboard));
 }
 
-function showMobileKeyboard() {
-  nameInput.style.pointerEvents = "auto";
-  nameInput.style.opacity = "1";
-  nameInput.style.position = "absolute";
-  nameInput.focus();
-}
-
-function hideMobileKeyboard() {
-  nameInput.style.pointerEvents = "none";
-  nameInput.style.opacity = "0";
-  nameInput.style.position = "absolute";
-  nameInput.blur();
-}
-
 document.addEventListener("keydown", e => {
   if (!gameStarted && !gameOver && playerName.length < 12 && /^[a-zA-Z0-9 ]$/.test(e.key)) {
     playerName += e.key;
@@ -217,14 +201,54 @@ document.addEventListener("keydown", e => {
     hideMobileKeyboard();
   }
 
+  if (gameOver && e.key === "Enter") {
+    resetGame();
+    startGame();
+    hideMobileKeyboard();
+  }
+
   if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
   if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 });
 
-// Show mobile keyboard on tap if on start screen
-canvas.addEventListener("touchstart", () => {
-  if (!gameStarted && !gameOver) {
+let isDragging = false;
+
+canvas.addEventListener("mousedown", (e) => {
+  if (!gameOver && gameStarted && !isMobile) {
+    isDragging = true;
+    const rect = canvas.getBoundingClientRect();
+    car.x = e.clientX - rect.left - car.width / 2;
+    clampCarPosition();
+  }
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (isDragging && !gameOver && gameStarted && !isMobile) {
+    const rect = canvas.getBoundingClientRect();
+    car.x = e.clientX - rect.left - car.width / 2;
+    clampCarPosition();
+  }
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+canvas.addEventListener("touchstart", (e) => {
+  if (!gameOver && gameStarted && isMobile) {
+    const touch = e.touches[0];
+    car.x = touch.clientX - car.width / 2;
+    clampCarPosition();
     showMobileKeyboard();
+  }
+});
+
+canvas.addEventListener("touchmove", (e) => {
+  if (!gameOver && gameStarted && isMobile) {
+    const touch = e.touches[0];
+    car.x = touch.clientX - car.width / 2;
+    clampCarPosition();
+    e.preventDefault();
   }
 });
 
@@ -232,51 +256,25 @@ canvas.addEventListener("click", () => {
   if (gameOver) {
     resetGame();
     startGame();
+  } else if (!gameStarted && isMobile) {
+    showMobileKeyboard();
   }
 });
 
-nameInput.addEventListener("input", (e) => {
-  playerName = e.target.value.substring(0, 12);
-});
-
-nameInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && playerName.length > 0) {
-    startGame();
-    hideMobileKeyboard();
-  }
-});
-
-document.addEventListener("mousedown", (e) => {
-  if (!gameOver && gameStarted && !isMobile) {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    car.x = x - car.width / 2;
-  }
-});
-
-document.addEventListener("touchstart", (e) => {
-  if (!gameOver && gameStarted && isMobile) {
-    const touch = e.touches[0];
-    car.x = touch.clientX - car.width / 2;
-  }
-});
-
-document.addEventListener("touchmove", (e) => {
-  if (!gameOver && gameStarted && isMobile) {
-    const touch = e.touches[0];
-    car.x = touch.clientX - car.width / 2;
-  }
-});
+function clampCarPosition() {
+  if (car.x < PLAY_AREA_LEFT) car.x = PLAY_AREA_LEFT;
+  if (car.x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH)
+    car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
+}
 
 function moveLeft() {
   car.x -= car.speed;
-  if (car.x < PLAY_AREA_LEFT) car.x = PLAY_AREA_LEFT;
+  clampCarPosition();
 }
 
 function moveRight() {
   car.x += car.speed;
-  if (car.x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH)
-    car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
+  clampCarPosition();
 }
 
 function resetGame() {
@@ -298,7 +296,7 @@ function resetGame() {
   fuelDecreaseTimer = 0;
   bonusTimer = 0;
   fuelIncreases = 0;
-  nextDifficultyThreshold = 300;
+  nextDifficultyThreshold = 500;
   car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - car.width / 2;
 }
 
@@ -311,13 +309,12 @@ function startGame() {
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (bonusActive) {
-    ctx.fillStyle = "#1c63ff"; // new bonus blue background
+    ctx.fillStyle = "#1c63ff"; // Bonus background color changed here
   } else {
-    ctx.fillStyle = "#111"; // dark background
+    ctx.fillStyle = "#111";
   }
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Frame
   if (!isMobile) {
     ctx.strokeStyle = bonusActive ? "#333" : "#666";
     ctx.lineWidth = 4;
@@ -328,8 +325,13 @@ function clearCanvas() {
 function updateDrops(deltaTime) {
   for (let drop of drops) {
     drop.y += dropSpeed * (deltaTime / 16);
-    if (!drop.caught && drop.y + drop.radius >= car.y && drop.y < car.y + car.height &&
-        drop.x >= car.x && drop.x <= car.x + car.width) {
+
+    if (!drop.caught &&
+      drop.y + drop.radius >= car.y &&
+      drop.y - drop.radius <= car.y + car.height &&
+      drop.x + drop.radius >= car.x &&
+      drop.x - drop.radius <= car.x + car.width) {
+      
       drop.caught = true;
 
       if (drop.bonus) {
@@ -347,8 +349,7 @@ function updateDrops(deltaTime) {
       }
     }
 
-    // Drop missed
-    if (!drop.caught && drop.y > canvas.height) {
+    if (!drop.caught && drop.y - drop.radius > canvas.height) {
       if (!drop.bonus && !drop.slowDown) {
         missedDrops++;
         if (missedDrops >= maxMisses) {
@@ -360,7 +361,7 @@ function updateDrops(deltaTime) {
     }
   }
 
-  drops = drops.filter(drop => !drop.caught || drop.y <= canvas.height);
+  drops = drops.filter(drop => !drop.caught || drop.y - drop.radius <= canvas.height);
 }
 
 function mainLoop(timestamp = 0) {
@@ -383,7 +384,6 @@ function mainLoop(timestamp = 0) {
   drawTopUI();
   drawBanners();
 
-  // Bonus timer
   if (bonusActive) {
     bonusTimer -= 16;
     if (bonusTimer <= 0) {
@@ -391,7 +391,6 @@ function mainLoop(timestamp = 0) {
     }
   }
 
-  // Fuel price increase logic
   if (score >= nextDifficultyThreshold) {
     fuelIncreases++;
     dropSpeed *= 1.2;
@@ -408,3 +407,20 @@ function mainLoop(timestamp = 0) {
     drawGameOver();
   }
 }
+
+function showMobileKeyboard() {
+  const input = document.getElementById("hiddenInput");
+  if (input) {
+    input.style.display = "block";
+    input.focus();
+  }
+}
+
+function hideMobileKeyboard() {
+  const input = document.getElementById("hiddenInput");
+  if (input) {
+    input.blur();
+    input.style.display = "none";
+  }
+}
+</script>
