@@ -1,9 +1,4 @@
-// inputs.js
-
-const canvas = state.canvas;
-const car = state.car;
-const PLAY_AREA_LEFT = state.PLAY_AREA_LEFT;
-const PLAY_AREA_WIDTH = state.PLAY_AREA_WIDTH;
+const { canvas, car, PLAY_AREA_LEFT, PLAY_AREA_WIDTH, gameOver, gameStarted, playerName } = state;
 
 let isDragging = false;
 
@@ -39,6 +34,7 @@ document.addEventListener("keydown", (e) => {
   if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 
   if (state.gameOver && e.key === "Enter") {
+    resetGame();
     startGame();
   }
 });
@@ -46,6 +42,7 @@ document.addEventListener("keydown", (e) => {
 // Mouse drag (desktop)
 canvas.addEventListener("mousedown", (e) => {
   if (state.gameOver) {
+    resetGame();
     startGame();
   } else {
     isDragging = true;
@@ -68,6 +65,7 @@ canvas.addEventListener("mouseup", () => {
 // Touch drag (mobile)
 canvas.addEventListener("touchstart", (e) => {
   if (state.gameOver) {
+    resetGame();
     startGame();
   } else {
     isDragging = true;
