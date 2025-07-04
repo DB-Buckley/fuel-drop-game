@@ -45,7 +45,7 @@ let car = {
   width: 60,
   height: 30,
   baseColor: "#F5A623",
-  bonusColor: "#1c63ff",
+  bonusColor: "#00CFFF",
   color: "#F5A623",
   speed: 7,
   dx: 0
@@ -85,28 +85,19 @@ let nextDifficultyThreshold = 300;
 let playerName = "";
 let leaderboard = JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]");
 
+// Reference to hidden input element
+const nameInput = document.getElementById("nameInput");
+
 function randomDropX() {
   return PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20);
-}
-
-// To avoid drops spawning too close vertically
-function validDropY(newY) {
-  for (let drop of drops) {
-    if (Math.abs(drop.y - newY) < 40) return false;
-  }
-  return true;
 }
 
 function spawnDrop() {
   if (gameOver) return;
 
   let newY = -20;
-  // Try finding a newY that doesn't collide vertically with other drops
-  let attempts = 0;
-  while (!validDropY(newY) && attempts < 10) {
-    newY -= 30;
-    attempts++;
-  }
+  if (Math.abs(newY - lastDropY) < 30) newY -= 30;
+  lastDropY = newY;
 
   const rand = Math.random();
   let drop = {
@@ -118,18 +109,12 @@ function spawnDrop() {
     slowDown: false
   };
 
-  // Determine drop type with rules:
-  // - No blue bonus during bonusActive, only one blue drop at a time
-  // - Green drops only after 3 price increases, 2% spawn chance, no consecutive greens
-  // - Only one green drop at a time
-  if (!bonusActive && !lastDropBonus && rand < 0.15) {
+  if (!bonusActive && !lastDropBonus && rand < 0.1) {
     drop.bonus = true;
     lastDropBonus = true;
-    lastDropGreen = false;
-  } else if (fuelIncreases >= 3 && !lastDropGreen && rand >= 0.15 && rand < 0.17) {
+  } else if (!lastDropGreen && fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
     drop.slowDown = true;
     lastDropGreen = true;
-    lastDropBonus = false;
   } else {
     lastDropBonus = false;
     lastDropGreen = false;
@@ -208,6 +193,20 @@ function updateLeaderboard() {
   localStorage.setItem("mzansi_leaderboard", JSON.stringify(leaderboard));
 }
 
+function showMobileKeyboard() {
+  nameInput.style.pointerEvents = "auto";
+  nameInput.style.opacity = "1";
+  nameInput.style.position = "absolute";
+  nameInput.focus();
+}
+
+function hideMobileKeyboard() {
+  nameInput.style.pointerEvents = "none";
+  nameInput.style.opacity = "0";
+  nameInput.style.position = "absolute";
+  nameInput.blur();
+}
+
 document.addEventListener("keydown", e => {
   if (!gameStarted && !gameOver && playerName.length < 12 && /^[a-zA-Z0-9 ]$/.test(e.key)) {
     playerName += e.key;
@@ -215,15 +214,17 @@ document.addEventListener("keydown", e => {
     playerName = playerName.slice(0, -1);
   } else if (!gameStarted && !gameOver && e.key === "Enter" && playerName.length > 0) {
     startGame();
+    hideMobileKeyboard();
   }
 
   if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
   if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
+});
 
-  // Restart game on Enter after game over
-  if (gameOver && e.key === "Enter") {
-    resetGame();
-    startGame();
+// Show mobile keyboard on tap if on start screen
+canvas.addEventListener("touchstart", () => {
+  if (!gameStarted && !gameOver) {
+    showMobileKeyboard();
   }
 });
 
@@ -234,42 +235,38 @@ canvas.addEventListener("click", () => {
   }
 });
 
-// Mouse drag for desktop
-let dragging = false;
-canvas.addEventListener("mousedown", (e) => {
+nameInput.addEventListener("input", (e) => {
+  playerName = e.target.value.substring(0, 12);
+});
+
+nameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && playerName.length > 0) {
+    startGame();
+    hideMobileKeyboard();
+  }
+});
+
+document.addEventListener("mousedown", (e) => {
   if (!gameOver && gameStarted && !isMobile) {
-    dragging = true;
-    moveCarToEvent(e);
-  }
-});
-canvas.addEventListener("mousemove", (e) => {
-  if (dragging && !gameOver && gameStarted && !isMobile) {
-    moveCarToEvent(e);
-  }
-});
-canvas.addEventListener("mouseup", () => {
-  dragging = false;
-});
-
-// Touch drag for mobile
-canvas.addEventListener("touchstart", (e) => {
-  if (!gameOver && gameStarted && isMobile) {
-    moveCarToEvent(e.touches[0]);
-  }
-});
-canvas.addEventListener("touchmove", (e) => {
-  if (!gameOver && gameStarted && isMobile) {
-    moveCarToEvent(e.touches[0]);
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    car.x = x - car.width / 2;
   }
 });
 
-function moveCarToEvent(e) {
-  let rect = canvas.getBoundingClientRect();
-  let x = e.clientX - rect.left - car.width / 2;
-  if (x < PLAY_AREA_LEFT) x = PLAY_AREA_LEFT;
-  if (x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH) x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
-  car.x = x;
-}
+document.addEventListener("touchstart", (e) => {
+  if (!gameOver && gameStarted && isMobile) {
+    const touch = e.touches[0];
+    car.x = touch.clientX - car.width / 2;
+  }
+});
+
+document.addEventListener("touchmove", (e) => {
+  if (!gameOver && gameStarted && isMobile) {
+    const touch = e.touches[0];
+    car.x = touch.clientX - car.width / 2;
+  }
+});
 
 function moveLeft() {
   car.x -= car.speed;
@@ -314,7 +311,7 @@ function startGame() {
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (bonusActive) {
-    ctx.fillStyle = "#b3f0ff"; // light blue during bonus
+    ctx.fillStyle = "#1c63ff"; // new bonus blue background
   } else {
     ctx.fillStyle = "#111"; // dark background
   }
@@ -331,11 +328,8 @@ function clearCanvas() {
 function updateDrops(deltaTime) {
   for (let drop of drops) {
     drop.y += dropSpeed * (deltaTime / 16);
-    if (!drop.caught &&
-        drop.y + drop.radius >= car.y &&
-        drop.y < car.y + car.height &&
-        drop.x >= car.x &&
-        drop.x <= car.x + car.width) {
+    if (!drop.caught && drop.y + drop.radius >= car.y && drop.y < car.y + car.height &&
+        drop.x >= car.x && drop.x <= car.x + car.width) {
       drop.caught = true;
 
       if (drop.bonus) {
@@ -366,8 +360,7 @@ function updateDrops(deltaTime) {
     }
   }
 
-  // Remove caught drops immediately
-  drops = drops.filter(drop => !drop.caught);
+  drops = drops.filter(drop => !drop.caught || drop.y <= canvas.height);
 }
 
 function mainLoop(timestamp = 0) {
