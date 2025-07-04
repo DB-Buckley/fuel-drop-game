@@ -53,10 +53,21 @@
     const pauseText = isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause";
     drawText(pauseText, canvas.width / 2, 90, 16, true, "#aaa");
 
-    // Drop Legends (bottom-left)
-    drawText("💛 Gold: +10", 20, canvas.height - 80, 16, false, "#f5c400");
-    drawText("💙 Blue: 3× Points (8s)", 20, canvas.height - 55, 16, false, "#00CFFF");
-    drawText("💚 Green: Slows Drops", 20, canvas.height - 30, 16, false, "#00ff88");
+    const legendX = 20;
+    let legendY = canvas.height - 90;
+    const imgSize = 24;
+    const spacing = 8;
+
+    function drawLegend(img, label) {
+    state.ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
+    drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
+    legendY += imgSize + 10;
+    }
+
+    drawLegend(state.images.fuel_gold, "+1 Point");
+    drawLegend(state.images.fuel_bonus, "5× Points (15s)");
+    drawLegend(state.images.fuel_green, "Slows Drops");
+
 
     // Exit Button (top-right)
   const btnW = 70;
