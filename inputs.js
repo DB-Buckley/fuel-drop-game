@@ -24,6 +24,16 @@
     clampCarPosition();
   }
 
+  function showMobileControls(show) {
+    const controls = document.getElementById('mobile-controls');
+    if (!controls) return;
+    if (show) {
+      controls.classList.remove('hidden');
+    } else {
+      controls.classList.add('hidden');
+    }
+  }
+
   // Keyboard input
   document.addEventListener("keydown", (e) => {
     const state = window.state;
@@ -33,6 +43,7 @@
       state.playerName = state.playerName.slice(0, -1);
     } else if (!state.gameStarted && !state.gameOver && e.key === "Enter" && state.playerName.length > 0) {
       window.startGame();
+      showMobileControls(false);
     }
 
     if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
@@ -41,6 +52,7 @@
     if (state.gameOver && e.key === "Enter") {
       window.resetGame();
       window.startGame();
+      showMobileControls(false);
     }
 
     // Pause keys
@@ -56,6 +68,7 @@
     if (state.gameOver) {
       window.resetGame();
       window.startGame();
+      showMobileControls(false);
     } else {
       isDragging = true;
       car.x = e.clientX - car.width / 2;
@@ -80,6 +93,7 @@
     if (state.gameOver) {
       window.resetGame();
       window.startGame();
+      showMobileControls(false);
     } else {
       isDragging = true;
       const touch = e.touches[0];
@@ -107,6 +121,7 @@
     if (state.gameOver) {
       window.resetGame();
       window.startGame();
+      showMobileControls(false);
     }
   });
 
@@ -115,6 +130,8 @@
     const startBtn = document.getElementById("mobile-start-btn");
     const nameInput = document.getElementById("mobile-player-name");
     const state = window.state;
+
+    showMobileControls(true);
 
     if (startBtn && nameInput) {
       startBtn.addEventListener("click", () => {
@@ -125,7 +142,15 @@
         }
         state.playerName = name;
         window.startGame();
+        showMobileControls(false);
       });
     }
+
+    // Override resetGame to show controls again
+    const originalResetGame = window.resetGame;
+    window.resetGame = function () {
+      originalResetGame();
+      showMobileControls(true);
+    };
   });
 })();
