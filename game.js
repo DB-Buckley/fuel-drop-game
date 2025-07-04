@@ -385,4 +385,7 @@ canvas.addEventListener("touchend", () => {
   isDragging = false;
 });
 
-mainLoop();
+// ✅ Start game only when car image is loaded
+carImage.onload = () => {
+  mainLoop();
+};
