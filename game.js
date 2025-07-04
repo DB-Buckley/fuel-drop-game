@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Progressive Difficulty Adjustment
+// Mzansi Fuel Drop - Simplified Difficulty, Bonus Fixes
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -36,11 +36,9 @@ let gameStarted = false;
 
 let bonusActive = false;
 let bonusTimer = 0;
-const bonusDuration = 15000;
+const bonusDuration = 8000;
 let showBonusBanner = false;
 
-let speedLevel = 0;
-let nextSpeedThreshold = 250;
 let showFuelPriceBanner = false;
 let fuelPriceBannerTimer = 0;
 const fuelPriceBannerDuration = 3000;
@@ -48,6 +46,8 @@ const fuelPriceBannerDuration = 3000;
 let showFuelDecreaseBanner = false;
 let fuelDecreaseTimer = 0;
 const fuelDecreaseBannerDuration = 2000;
+
+let nextDifficultyThreshold = 500;
 
 if (localStorage.getItem("mzansi_highscore")) {
   highScore = parseInt(localStorage.getItem("mzansi_highscore"));
@@ -58,6 +58,7 @@ function randomDropX() {
 }
 
 function spawnDrop() {
+  if (gameOver) return;
   const rand = Math.random();
   let drop = {
     x: randomDropX(),
@@ -142,6 +143,7 @@ function drawGameOver() {
 }
 
 function updateDrops() {
+  if (gameOver) return;
   for (let drop of drops) {
     drop.y += dropSpeed;
 
@@ -164,11 +166,10 @@ function updateDrops() {
       }
       score += bonusActive ? 50 : 10;
 
-      if (score >= nextSpeedThreshold) {
+      if (score >= nextDifficultyThreshold) {
         dropSpeed *= 1.15;
         spawnInterval *= 0.85;
-        speedLevel++;
-        nextSpeedThreshold = Math.round(nextSpeedThreshold * 1.2);
+        nextDifficultyThreshold += 500;
         showFuelPriceBanner = true;
         fuelPriceBannerTimer = Date.now();
       }
@@ -221,6 +222,11 @@ function update() {
     return;
   }
 
+  if (gameOver) {
+    drawGameOver();
+    return;
+  }
+
   car.x += car.dx;
   if (car.x < PLAY_AREA_LEFT) car.x = PLAY_AREA_LEFT;
   if (car.x + car.width > PLAY_AREA_LEFT + PLAY_AREA_WIDTH)
@@ -233,13 +239,9 @@ function update() {
   drawTopUI();
   drawBanners();
 
-  if (gameOver) {
-    if (score > highScore) {
-      highScore = score;
-      drawHighScore();
-    }
-    drawGameOver();
-    return;
+  if (score > highScore) {
+    highScore = score;
+    drawHighScore();
   }
 }
 
@@ -253,11 +255,10 @@ function mainLoop() {
 function resetGame() {
   score = 0;
   missedDrops = 0;
-  speedLevel = 0;
   drops = [];
   dropSpeed = 2;
   spawnInterval = 1500;
-  nextSpeedThreshold = 250;
+  nextDifficultyThreshold = 500;
   car.color = car.baseColor;
   bonusActive = false;
   showBonusBanner = false;
