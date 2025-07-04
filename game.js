@@ -115,7 +115,7 @@ function drawStartScreen() {
   drawText("Mzansi Fuel Drop", canvas.width / 2, 80, 36, true);
   drawText("Catch golden drops to score points.", canvas.width / 2, 120, 20, true);
   drawText("Miss 10 drops and it's game over.", canvas.width / 2, 150, 20, true);
-  drawText("Bonus drops (blue) give 3x points, no bonus drops spawn during bonus.", canvas.width / 2, 180, 18, true);
+  drawText("Bonus drops (blue) trigger 3x points for 8 seconds.", canvas.width / 2, 180, 18, true);
   drawText("Green drops slow down the game, but only spawn after 3 price increases.", canvas.width / 2, 210, 18, true);
 
   drawText("Enter your name and press Enter to start:", canvas.width / 2, 260, 20, true);
@@ -185,17 +185,27 @@ function updateDrops() {
       drop.x > car.x &&
       drop.x < car.x + car.width
     ) {
-      score += drop.bonus ? 30 : 10;
-      if (drop.slowDown) {
-        dropSpeed = Math.max(dropSpeed * 0.95, 1); // slow down 5%
-        showFuelDecreaseBanner = true;
-        fuelDecreaseTimer = performance.now();
-      }
       if (drop.bonus) {
+        // Activate bonus round
         bonusActive = true;
         bonusTimer = performance.now();
         showBonusBanner = true;
+        // Blue drop itself does NOT add points
+      } else {
+        // Gold drop or green drop
+        let pointsToAdd = 10;
+        if (bonusActive && !drop.slowDown) {
+          pointsToAdd *= 3; // 3x points during bonus for gold drops only
+        }
+        score += pointsToAdd;
+
+        if (drop.slowDown) {
+          dropSpeed = Math.max(dropSpeed * 0.95, 1); // slow down 5%
+          showFuelDecreaseBanner = true;
+          fuelDecreaseTimer = performance.now();
+        }
       }
+
       drops.splice(i, 1);
     } else if (drop.y > canvas.height) {
       if (!drop.bonus && !drop.slowDown) {
@@ -254,6 +264,7 @@ function mainLoop() {
     updateDrops();
     checkDifficultyIncrease();
 
+    // End bonus round after 8 seconds
     if (bonusActive && performance.now() - bonusTimer > bonusDuration) {
       bonusActive = false;
       showBonusBanner = false;
@@ -298,16 +309,14 @@ document.addEventListener("keydown", e => {
   if (gameStarted && !gameOver) {
     if (["ArrowLeft", "a", "A"].includes(e.key)) {
       car.x -= car.speed;
+      if (car.x < PLAY_AREA_LEFT) car.x = PLAY_AREA_LEFT;
     }
     if (["ArrowRight", "d", "D"].includes(e.key)) {
       car.x += car.speed;
+      if (car.x > PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width)
+        car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
     }
-    car.x = Math.max(PLAY_AREA_LEFT, Math.min(car.x, PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width));
   }
-});
-
-canvas.addEventListener("click", () => {
-  if (gameOver) startGame();
 });
 
 // Mouse drag
@@ -316,24 +325,30 @@ let dragOffsetX = 0;
 
 canvas.addEventListener("mousedown", e => {
   if (!gameStarted || gameOver) return;
-  const mouseX = e.clientX;
-  const mouseY = e.clientY;
-  if (mouseX >= car.x && mouseX <= car.x + car.width && mouseY >= car.y && mouseY <= car.y + car.height) {
+  if (
+    e.clientX >= car.x &&
+    e.clientX <= car.x + car.width &&
+    e.clientY >= car.y &&
+    e.clientY <= car.y + car.height
+  ) {
     isDragging = true;
-    dragOffsetX = mouseX - car.x;
+    dragOffsetX = e.clientX - car.x;
   }
 });
 
 canvas.addEventListener("mousemove", e => {
   if (isDragging) {
     car.x = e.clientX - dragOffsetX;
-    car.x = Math.max(PLAY_AREA_LEFT, Math.min(car.x, PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width));
+    if (car.x < PLAY_AREA_LEFT) car.x = PLAY_AREA_LEFT;
+    if (car.x > PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width)
+      car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
   }
 });
 
 canvas.addEventListener("mouseup", () => {
   isDragging = false;
 });
+
 canvas.addEventListener("mouseleave", () => {
   isDragging = false;
 });
@@ -342,11 +357,14 @@ canvas.addEventListener("mouseleave", () => {
 canvas.addEventListener("touchstart", e => {
   if (!gameStarted || gameOver) return;
   const touch = e.touches[0];
-  const touchX = touch.clientX;
-  const touchY = touch.clientY;
-  if (touchX >= car.x && touchX <= car.x + car.width && touchY >= car.y && touchY <= car.y + car.height) {
+  if (
+    touch.clientX >= car.x &&
+    touch.clientX <= car.x + car.width &&
+    touch.clientY >= car.y &&
+    touch.clientY <= car.y + car.height
+  ) {
     isDragging = true;
-    dragOffsetX = touchX - car.x;
+    dragOffsetX = touch.clientX - car.x;
   }
 });
 
@@ -354,7 +372,9 @@ canvas.addEventListener("touchmove", e => {
   if (isDragging) {
     const touch = e.touches[0];
     car.x = touch.clientX - dragOffsetX;
-    car.x = Math.max(PLAY_AREA_LEFT, Math.min(car.x, PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width));
+    if (car.x < PLAY_AREA_LEFT) car.x = PLAY_AREA_LEFT;
+    if (car.x > PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width)
+      car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
   }
 });
 
