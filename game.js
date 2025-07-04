@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Leaderboard + Asset Support + Enter Key Start
+// Mzansi Fuel Drop - Full Gameplay Logic
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -79,6 +79,103 @@ function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+function moveLeft() {
+  if (car.x > PLAY_AREA_LEFT) {
+    car.x -= car.speed;
+  }
+}
+
+function moveRight() {
+  if (car.x + car.width < PLAY_AREA_LEFT + PLAY_AREA_WIDTH) {
+    car.x += car.speed;
+  }
+}
+
+function spawnDrop() {
+  if (gameOver) return;
+  let newY = -20;
+  if (Math.abs(newY - lastDropY) < 30) newY -= 30;
+  lastDropY = newY;
+
+  const rand = Math.random();
+  let drop = {
+    x: PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20),
+    y: newY,
+    radius: 10,
+    caught: false,
+    bonus: false,
+    slowDown: false
+  };
+
+  if (!bonusActive && !lastDropBonus && rand < 0.1) {
+    drop.bonus = true;
+    lastDropBonus = true;
+  } else if (!lastDropGreen && fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
+    drop.slowDown = true;
+    lastDropGreen = true;
+  } else {
+    lastDropBonus = false;
+    lastDropGreen = false;
+  }
+  drops.push(drop);
+}
+
+function updateDrops(delta) {
+  drops.forEach((drop, index) => {
+    drop.y += dropSpeed * (delta / 16);
+
+    // Check catch
+    if (!drop.caught &&
+        drop.y + drop.radius > car.y &&
+        drop.y - drop.radius < car.y + car.height &&
+        drop.x > car.x &&
+        drop.x < car.x + car.width) {
+      drop.caught = true;
+
+      if (drop.bonus) {
+        bonusActive = true;
+        bonusTimer = bonusDuration;
+        showBonusBanner = true;
+        score += 30;
+      } else if (drop.slowDown) {
+        dropSpeed *= 0.95;
+        showFuelDecreaseBanner = true;
+        fuelDecreaseTimer = fuelDecreaseBannerDuration;
+        score += 10;
+      } else {
+        score += bonusActive ? 30 : 10;
+      }
+
+      if (score >= nextDifficultyThreshold) {
+        dropSpeed *= 1.15;
+        spawnInterval *= 0.85;
+        fuelIncreases++;
+        nextDifficultyThreshold += 500;
+        showFuelPriceBanner = true;
+        fuelPriceBannerTimer = fuelPriceBannerDuration;
+      }
+    }
+
+    // Missed
+    if (!drop.caught && drop.y > canvas.height) {
+      if (!drop.bonus && !drop.slowDown) {
+        missedDrops++;
+        if (missedDrops >= maxMisses) {
+          endGame();
+        }
+      }
+      drops.splice(index, 1);
+    }
+  });
+}
+
+function endGame() {
+  gameOver = true;
+  bonusActive = false;
+  updateLeaderboard();
+  if (score > highScore) highScore = score;
+}
+
 function mainLoop(timestamp) {
   clearCanvas();
 
@@ -87,13 +184,38 @@ function mainLoop(timestamp) {
   } else if (gameOver) {
     drawGameOver();
   } else {
-    // Game in progress
     drawTopUI();
     drawBanners();
     drawCar();
     drops.forEach(drawDrop);
-  }
 
+    const now = performance.now();
+    if (now - lastSpawn > spawnInterval) {
+      spawnDrop();
+      lastSpawn = now;
+    }
+
+    let delta = 16;
+    updateDrops(delta);
+
+    if (bonusActive) {
+      bonusTimer -= delta;
+      if (bonusTimer <= 0) {
+        bonusActive = false;
+        showBonusBanner = false;
+      }
+    }
+
+    if (showFuelPriceBanner) {
+      fuelPriceBannerTimer -= delta;
+      if (fuelPriceBannerTimer <= 0) showFuelPriceBanner = false;
+    }
+
+    if (showFuelDecreaseBanner) {
+      fuelDecreaseTimer -= delta;
+      if (fuelDecreaseTimer <= 0) showFuelDecreaseBanner = false;
+    }
+  }
   requestAnimationFrame(mainLoop);
 }
 
@@ -111,16 +233,11 @@ function startGame() {
   car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - car.width / 2;
 }
 
-function moveLeft() {
-  if (car.x > PLAY_AREA_LEFT) {
-    car.x -= car.speed;
-  }
-}
-
-function moveRight() {
-  if (car.x + car.width < PLAY_AREA_LEFT + PLAY_AREA_WIDTH) {
-    car.x += car.speed;
-  }
+function updateLeaderboard() {
+  leaderboard.push({ name: playerName || "Anon", score });
+  leaderboard.sort((a, b) => b.score - a.score);
+  leaderboard = leaderboard.slice(0, 10);
+  localStorage.setItem("mzansi_leaderboard", JSON.stringify(leaderboard));
 }
 
 document.addEventListener("keydown", e => {
