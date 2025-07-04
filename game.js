@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Updated with start screen, banners, speed scaling, bonus & fuel decrease drops
+// Mzansi Fuel Drop - Full Updated Script with Start Fix, Banners, Speed, Bonus/Slow Drops
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -85,8 +85,7 @@ function drawDrop(drop) {
 function drawText(text, x, y, size = 20, center = false, color = "#fff") {
   ctx.fillStyle = color;
   ctx.font = `${size}px Arial`;
-  if (center) ctx.textAlign = "center";
-  else ctx.textAlign = "left";
+  ctx.textAlign = center ? "center" : "left";
   ctx.fillText(text, x, y);
 }
 
@@ -194,7 +193,6 @@ function update() {
     car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width;
 
   clearCanvas();
-  drawPlayAreaFrame();
   drawCar();
   updateDrops();
   for (let drop of drops) drawDrop(drop);
@@ -208,8 +206,13 @@ function update() {
     drawGameOver();
     return;
   }
+}
 
-  requestAnimationFrame(update);
+function mainLoop() {
+  requestAnimationFrame(() => {
+    update();
+    mainLoop();
+  });
 }
 
 function resetGame() {
@@ -224,7 +227,6 @@ function resetGame() {
   showFuelPriceBanner = false;
   gameOver = false;
   spawnDrop();
-  update();
 }
 
 function startGame() {
@@ -265,5 +267,9 @@ canvas.addEventListener("mousemove", e => {
   if (isDragging) car.x = e.clientX - car.width / 2;
 });
 canvas.addEventListener("mouseup", () => { isDragging = false; stopMove(); });
+canvas.addEventListener("click", () => {
+  if (!gameStarted) return startGame();
+  if (gameOver) return resetGame();
+});
 
-update();
+mainLoop();
