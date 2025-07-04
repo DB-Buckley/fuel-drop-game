@@ -45,7 +45,7 @@ let car = {
   width: 60,
   height: 30,
   baseColor: "#F5A623",
-  bonusColor: "#00CFFF",
+  bonusColor: "#1c63ff",
   color: "#F5A623",
   speed: 7,
   dx: 0
