@@ -9,10 +9,28 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
-  <div id="mobile-controls" style="display:none; text-align:center; margin-top: 10px;">
-  <input type="text" id="mobile-player-name" placeholder="Enter your name" maxlength="12" style="font-size:16px; padding:6px; width: 200px;" />
-  <button id="mobile-start-btn" style="font-size:16px; padding:6px 12px; margin-left:8px;">Start Game</button>
-  </div>
+  <!-- Mobile controls, hidden on desktop -->
+<div id="mobile-controls" style="display: none; text-align: center; margin-top: 10px;">
+  <input
+    id="mobile-player-name"
+    type="text"
+    maxlength="12"
+    placeholder="Enter your name"
+    style="font-size: 18px; padding: 8px; width: 60%; max-width: 300px;"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="words"
+    spellcheck="false"
+  />
+  <br />
+  <button
+    id="mobile-start-btn"
+    style="margin-top: 10px; font-size: 20px; padding: 10px 20px; cursor: pointer;"
+  >
+    Start Game
+  </button>
+</div>
+
 
 
  <script src="state.js"></script>
