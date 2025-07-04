@@ -70,22 +70,23 @@
 
 
     // Exit Button (top-right)
-  const btnW = 70;
-  const btnH = 22;
-  const btnX = canvas.width - btnW - 20;
-  const btnY = state.isMobile ? canvas.height - btnH - 20 : 20;
+const isMobile = state.isMobile;
+const btnW = isMobile ? 40 : 80;
+const btnH = 32;
+const btnX = state.canvas.width - btnW - 20;
+const btnY = isMobile ? state.canvas.height - btnH - 20 : 20;
 
-    ctx.fillStyle = "#ff3b3b";
-    ctx.fillRect(btnX, btnY, btnW, btnH);
-    ctx.fillStyle = "#fff";
-    ctx.font = "18px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("Exit", btnX + btnW / 2, btnY + btnH / 2);
+state.ctx.fillStyle = "rgba(50, 50, 50, 0.7)";
+state.ctx.strokeStyle = "#fff";
+state.ctx.lineWidth = 2;
+state.ctx.fillRect(btnX, btnY, btnW, btnH);
+state.ctx.strokeRect(btnX, btnY, btnW, btnH);
 
-    // Save exit button bounds for inputs.js
-    state.exitButton = { x: btnX, y: btnY, width: btnW, height: btnH };
-  }
+state.ctx.fillStyle = "#fff";
+state.ctx.font = `${isMobile ? 28 : 18}px Arial`;
+state.ctx.textAlign = "center";
+state.ctx.textBaseline = "middle";
+state.ctx.fillText(isMobile ? "×" : "Exit", btnX + btnW / 2, btnY + btnH / 2);
 
   function drawBanners() {
     if (state.showBonusBanner) {
