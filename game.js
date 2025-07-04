@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - With Bonus + Fuel Decrease Fixes
+// Mzansi Fuel Drop - Updated Scoring and Difficulty Scaling
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -161,10 +161,11 @@ function updateDrops() {
         showFuelDecreaseBanner = true;
         fuelDecreaseTimer = Date.now();
       }
-      score += bonusActive ? 25 : 5;
+      score += bonusActive ? 75 : 15;
 
       if (score >= (speedLevel + 1) * 250) {
-        dropSpeed *= 1.15;
+        dropSpeed *= 1.2;
+        spawnInterval *= 0.95;
         speedLevel++;
         showFuelPriceBanner = true;
         fuelPriceBannerTimer = Date.now();
@@ -251,6 +252,7 @@ function resetGame() {
   speedLevel = 0;
   drops = [];
   dropSpeed = 2;
+  spawnInterval = 1500;
   car.color = car.baseColor;
   bonusActive = false;
   showBonusBanner = false;
