@@ -1,31 +1,16 @@
-// logic.js
-
 (function () {
-  const {
-    drops, car, canvas,
-    dropSpeed, spawnInterval,
-    lastSpawn, lastDropY, lastDropBonus, lastDropGreen,
-    bonusActive, bonusTimer, bonusDuration,
-    fuelIncreases, nextDifficultyThreshold,
-    score, missedDrops, maxMisses,
-    showBonusBanner, showFuelPriceBanner, showFuelDecreaseBanner,
-    fuelPriceBannerTimer, fuelPriceBannerDuration,
-    fuelDecreaseTimer, fuelDecreaseBannerDuration,
-    leaderboard, playerName,
-    PLAY_AREA_LEFT, PLAY_AREA_WIDTH,
-    gameOver
-  } = window.state;
+  const state = window.state;
 
   function randomDropX() {
-    return PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20);
+    return state.PLAY_AREA_LEFT + Math.random() * (state.PLAY_AREA_WIDTH - 20);
   }
 
   window.spawnDrop = function () {
-    if (window.state.gameOver) return;
+    if (state.gameOver) return;
 
     let newY = -20;
-    if (Math.abs(newY - window.state.lastDropY) < 30) newY -= 30;
-    window.state.lastDropY = newY;
+    if (Math.abs(newY - state.lastDropY) < 30) newY -= 30;
+    state.lastDropY = newY;
 
     const rand = Math.random();
     let drop = {
@@ -37,23 +22,21 @@
       slowDown: false
     };
 
-    if (!window.state.bonusActive && !window.state.lastDropBonus && rand < 0.1) {
+    if (!state.bonusActive && !state.lastDropBonus && rand < 0.1) {
       drop.bonus = true;
-      window.state.lastDropBonus = true;
-    } else if (!window.state.lastDropGreen && window.state.fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
+      state.lastDropBonus = true;
+    } else if (!state.lastDropGreen && state.fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
       drop.slowDown = true;
-      window.state.lastDropGreen = true;
+      state.lastDropGreen = true;
     } else {
-      window.state.lastDropBonus = false;
-      window.state.lastDropGreen = false;
+      state.lastDropBonus = false;
+      state.lastDropGreen = false;
     }
 
-    window.state.drops.push(drop);
+    state.drops.push(drop);
   };
 
   window.updateDrops = function (deltaTime) {
-    const state = window.state;
-
     for (let drop of state.drops) {
       drop.y += state.dropSpeed * (deltaTime / 16);
 
@@ -69,23 +52,23 @@
 
         if (drop.bonus) {
           state.bonusActive = true;
-          state.bonusTimer = bonusDuration;
+          state.bonusTimer = state.bonusDuration;
           state.showBonusBanner = true;
-          setTimeout(() => state.showBonusBanner = false, bonusDuration);
+          setTimeout(() => (state.showBonusBanner = false), state.bonusDuration);
         } else if (drop.slowDown) {
           state.dropSpeed *= 0.95;
           state.showFuelDecreaseBanner = true;
-          state.fuelDecreaseTimer = fuelDecreaseBannerDuration;
-          setTimeout(() => state.showFuelDecreaseBanner = false, fuelDecreaseBannerDuration);
+          state.fuelDecreaseTimer = state.fuelDecreaseBannerDuration;
+          setTimeout(() => (state.showFuelDecreaseBanner = false), state.fuelDecreaseBannerDuration);
         } else {
           state.score += state.bonusActive ? 30 : 10;
         }
       }
 
-      if (!drop.caught && drop.y > canvas.height) {
+      if (!drop.caught && drop.y > state.canvas.height) {
         if (!drop.bonus && !drop.slowDown) {
           state.missedDrops++;
-          if (state.missedDrops >= maxMisses) {
+          if (state.missedDrops >= state.maxMisses) {
             state.gameOver = true;
             updateLeaderboard();
           }
@@ -94,11 +77,10 @@
       }
     }
 
-    state.drops = state.drops.filter(drop => !drop.caught || drop.y <= canvas.height);
+    state.drops = state.drops.filter(drop => !drop.caught || drop.y <= state.canvas.height);
   };
 
   function updateLeaderboard() {
-    const state = window.state;
     state.leaderboard.push({ name: state.playerName || "Anon", score: state.score });
     state.leaderboard.sort((a, b) => b.score - a.score);
     state.leaderboard = state.leaderboard.slice(0, 10);
@@ -106,8 +88,6 @@
   }
 
   window.updateBonus = function (deltaTime) {
-    const state = window.state;
-
     if (state.bonusActive) {
       state.bonusTimer -= deltaTime;
       if (state.bonusTimer <= 0) {
@@ -117,14 +97,12 @@
   };
 
   window.updateDifficulty = function () {
-    const state = window.state;
-
     if (state.score >= state.nextDifficultyThreshold) {
       state.fuelIncreases++;
       state.dropSpeed *= 1.2;
       state.spawnInterval *= 0.9;
       state.showFuelPriceBanner = true;
-      setTimeout(() => state.showFuelPriceBanner = false, state.fuelPriceBannerDuration);
+      setTimeout(() => (state.showFuelPriceBanner = false), state.fuelPriceBannerDuration);
       state.nextDifficultyThreshold += 300;
     }
   };
