@@ -25,18 +25,18 @@ function moveRight() {
 
 // Keyboard input
 document.addEventListener("keydown", (e) => {
-  if (!state.gameStarted && !state.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && state.playerName.length < 12) {
-    state.playerName += e.key;
-  } else if (!state.gameStarted && !state.gameOver && e.key === "Backspace") {
-    state.playerName = state.playerName.slice(0, -1);
-  } else if (!state.gameStarted && !state.gameOver && e.key === "Enter" && state.playerName.length > 0) {
+  if (!window.state.gameStarted && !window.state.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && window.state.playerName.length < 12) {
+    window.state.playerName += e.key;
+  } else if (!window.state.gameStarted && !window.state.gameOver && e.key === "Backspace") {
+    window.state.playerName = window.state.playerName.slice(0, -1);
+  } else if (!window.state.gameStarted && !window.state.gameOver && e.key === "Enter" && window.state.playerName.length > 0) {
     startGame();
   }
 
   if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
   if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 
-  if (state.gameOver && e.key === "Enter") {
+  if (window.state.gameOver && e.key === "Enter") {
     resetGame();
     startGame();
   }
@@ -44,7 +44,7 @@ document.addEventListener("keydown", (e) => {
 
 // Mouse drag (desktop)
 canvas.addEventListener("mousedown", (e) => {
-  if (state.gameOver) {
+  if (window.state.gameOver) {
     resetGame();
     startGame();
   } else {
@@ -67,7 +67,7 @@ canvas.addEventListener("mouseup", () => {
 
 // Touch drag (mobile)
 canvas.addEventListener("touchstart", (e) => {
-  if (state.gameOver) {
+  if (window.state.gameOver) {
     resetGame();
     startGame();
   } else {
@@ -93,7 +93,7 @@ canvas.addEventListener("touchend", () => {
 
 // Click to restart game
 canvas.addEventListener("click", () => {
-  if (state.gameOver) {
+  if (window.state.gameOver) {
     resetGame();
     startGame();
   }
