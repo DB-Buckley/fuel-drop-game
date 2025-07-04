@@ -70,5 +70,6 @@ window.state = {
   showBonusBanner, showFuelPriceBanner, showFuelDecreaseBanner,
   fuelPriceBannerTimer, fuelPriceBannerDuration,
   fuelDecreaseTimer, fuelDecreaseBannerDuration,
-  playerName, leaderboard
+  playerName, leaderboard,
+  images: {} // Added this empty object for images
 };
