@@ -1,59 +1,77 @@
 (function () {
-  const state = window.state;
+  const canvas = window.state.canvas;
+  const car = window.state.car;
+  const s = window.state;
 
-  // Keyboard input and mouse/touch handlers
-  // (Assuming your existing code here, unchanged except mobile start button handling)
+  let isDragging = false;
+  let lastTap = 0;
 
-  // Keyboard input
+  function clampCarPosition() {
+    if (car.x < s.PLAY_AREA_LEFT) {
+      car.x = s.PLAY_AREA_LEFT;
+    } else if (car.x + car.width > s.PLAY_AREA_LEFT + s.PLAY_AREA_WIDTH) {
+      car.x = s.PLAY_AREA_LEFT + s.PLAY_AREA_WIDTH - car.width;
+    }
+  }
+
+  window.clampCarPosition = clampCarPosition; // expose for other uses
+
+  function moveLeft() {
+    car.x -= car.speed;
+    clampCarPosition();
+  }
+
+  function moveRight() {
+    car.x += car.speed;
+    clampCarPosition();
+  }
+
+  window.moveLeft = moveLeft;
+  window.moveRight = moveRight;
+
+  // --- KEYBOARD INPUT ---
   document.addEventListener("keydown", (e) => {
-    if (!state.gameStarted && !state.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && state.playerName.length < 12) {
-      state.playerName += e.key;
-    } else if (!state.gameStarted && !state.gameOver && e.key === "Backspace") {
-      state.playerName = state.playerName.slice(0, -1);
-    } else if (!state.gameStarted && !state.gameOver && e.key === "Enter" && state.playerName.length > 0) {
+    if (!s.gameStarted && !s.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && s.playerName.length < 12) {
+      s.playerName += e.key;
+    } else if (!s.gameStarted && !s.gameOver && e.key === "Backspace") {
+      s.playerName = s.playerName.slice(0, -1);
+    } else if (!s.gameStarted && !s.gameOver && e.key === "Enter" && s.playerName.length > 0) {
       window.startGame();
-      // Hide mobile controls after starting game
-      const controls = document.getElementById("mobile-controls");
-      if (controls) controls.classList.add("hidden");
+      document.getElementById("mobile-controls")?.classList.add("hidden");
     }
 
-    if (["ArrowLeft", "a", "A"].includes(e.key)) window.moveLeft?.();
-    if (["ArrowRight", "d", "D"].includes(e.key)) window.moveRight?.();
+    if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
+    if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 
-    if (state.gameOver && e.key === "Enter") {
+    if (s.gameOver && e.key === "Enter") {
       window.resetGame();
       window.startGame();
-      const controls = document.getElementById("mobile-controls");
-      if (controls) controls.classList.add("hidden");
+      document.getElementById("mobile-controls")?.classList.add("hidden");
     }
 
     if (e.key === "p" || e.key === "Escape") {
-      if (!state.gameStarted) return;
-      state.paused = !state.paused;
+      if (!s.gameStarted) return;
+      s.paused = !s.paused;
     }
   });
 
-  // Mouse drag (desktop)
-  const canvas = window.state.canvas;
-  let isDragging = false;
-
+  // --- MOUSE DRAG ---
   canvas.addEventListener("mousedown", (e) => {
-    if (state.gameOver) {
+    if (s.gameOver) {
       window.resetGame();
       window.startGame();
-      const controls = document.getElementById("mobile-controls");
-      if (controls) controls.classList.add("hidden");
+      document.getElementById("mobile-controls")?.classList.add("hidden");
     } else {
       isDragging = true;
-      window.car.x = e.clientX - window.car.width / 2;
-      window.clampCarPosition?.();
+      car.x = e.clientX - car.width / 2;
+      clampCarPosition();
     }
   });
 
   canvas.addEventListener("mousemove", (e) => {
     if (isDragging) {
-      window.car.x = e.clientX - window.car.width / 2;
-      window.clampCarPosition?.();
+      car.x = e.clientX - car.width / 2;
+      clampCarPosition();
     }
   });
 
@@ -61,45 +79,55 @@
     isDragging = false;
   });
 
-  // Touch drag (mobile)
+  // --- TOUCH DRAG ---
   canvas.addEventListener("touchstart", (e) => {
-    if (state.gameOver) {
+    const now = new Date().getTime();
+    const timeDiff = now - lastTap;
+
+    if (timeDiff < 300 && timeDiff > 0) {
+      // Double tap to pause
+      if (s.gameStarted && !s.gameOver) {
+        s.paused = !s.paused;
+      }
+    }
+
+    lastTap = now;
+
+    if (s.gameOver) {
       window.resetGame();
       window.startGame();
-      const controls = document.getElementById("mobile-controls");
-      if (controls) controls.classList.add("hidden");
+      document.getElementById("mobile-controls")?.classList.add("hidden");
     } else {
       isDragging = true;
       const touch = e.touches[0];
-      window.car.x = touch.clientX - window.car.width / 2;
-      window.clampCarPosition?.();
+      car.x = touch.clientX - car.width / 2;
+      clampCarPosition();
     }
   });
 
   canvas.addEventListener("touchmove", (e) => {
     if (isDragging) {
       const touch = e.touches[0];
-      window.car.x = touch.clientX - window.car.width / 2;
-      window.clampCarPosition?.();
+      car.x = touch.clientX - car.width / 2;
+      clampCarPosition();
     }
-    e.preventDefault(); // Prevent scrolling while dragging
+    e.preventDefault(); // prevent screen scroll
   });
 
   canvas.addEventListener("touchend", () => {
     isDragging = false;
   });
 
-  // Click to restart game
+  // --- CLICK TO RESTART ---
   canvas.addEventListener("click", () => {
-    if (state.gameOver) {
+    if (s.gameOver) {
       window.resetGame();
       window.startGame();
-      const controls = document.getElementById("mobile-controls");
-      if (controls) controls.classList.add("hidden");
+      document.getElementById("mobile-controls")?.classList.add("hidden");
     }
   });
 
-  // Mobile Start Button Handler
+  // --- MOBILE START BUTTON ---
   document.addEventListener("DOMContentLoaded", () => {
     const startBtn = document.getElementById("mobile-start-btn");
     const nameInput = document.getElementById("mobile-player-name");
@@ -111,13 +139,9 @@
           alert("Please enter your name to start!");
           return;
         }
-        state.playerName = name;
+        s.playerName = name;
         window.startGame();
-
-        const controls = document.getElementById("mobile-controls");
-        if (controls) {
-          controls.classList.add("hidden");
-        }
+        document.getElementById("mobile-controls")?.classList.add("hidden");
       });
     }
   });
