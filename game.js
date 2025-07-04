@@ -1,4 +1,4 @@
-// Mzansi Fuel Drop - Allow Drops During Bonus, Exclude Blue
+// Mzansi Fuel Drop - Spawn Rules Improved
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -26,6 +26,10 @@ let drops = [];
 let dropSpeed = 2;
 let spawnInterval = 1500;
 let lastSpawn = 0;
+let lastDropY = -100;
+let lastDropBonus = false;
+let lastDropGreen = false;
+let fuelIncreases = 0;
 
 let score = 0;
 let highScore = 0;
@@ -59,22 +63,39 @@ function randomDropX() {
 
 function spawnDrop() {
   if (gameOver) return;
+
+  // Prevent drops spawning at same height
+  let newY = -20;
+  if (Math.abs(newY - lastDropY) < 30) newY -= 30;
+  lastDropY = newY;
+
   const rand = Math.random();
   let drop = {
     x: randomDropX(),
-    y: -20,
+    y: newY,
     radius: 10,
     caught: false,
     bonus: false,
     slowDown: false
   };
 
-  // Only allow blue bonus if not currently in bonus round
-  if (!bonusActive && rand < 0.1) {
+  // Only one bonus drop at a time
+  if (!bonusActive && !lastDropBonus && rand < 0.1) {
     drop.bonus = true;
-  } else if (rand >= 0.1 && rand < 0.11) {
+    lastDropBonus = true;
+  } else if (
+    !lastDropGreen &&
+    fuelIncreases >= 3 &&
+    rand >= 0.1 &&
+    rand < 0.12
+  ) {
     drop.slowDown = true;
+    lastDropGreen = true;
+  } else {
+    lastDropBonus = false;
+    lastDropGreen = false;
   }
+
   drops.push(drop);
 }
 
@@ -171,6 +192,7 @@ function updateDrops() {
         dropSpeed *= 1.15;
         spawnInterval *= 0.85;
         nextDifficultyThreshold += 500;
+        fuelIncreases++;
         showFuelPriceBanner = true;
         fuelPriceBannerTimer = Date.now();
       }
@@ -266,6 +288,9 @@ function resetGame() {
   showFuelPriceBanner = false;
   showFuelDecreaseBanner = false;
   gameOver = false;
+  fuelIncreases = 0;
+  lastDropBonus = false;
+  lastDropGreen = false;
   spawnDrop();
 }
 
