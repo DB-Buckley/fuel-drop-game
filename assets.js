@@ -1,4 +1,6 @@
 (() => {
+  const s = window.state;
+
   const images = {
     car: new Image(),
     fuel_gold: new Image(),
@@ -28,7 +30,7 @@
       images[key].onload = () => {
         imagesLoaded++;
         if (imagesLoaded === totalImages) {
-          callback?.();
+          callback?.(); // ✅ Start game after all images loaded
         }
       };
       images[key].onerror = () => {
@@ -41,6 +43,12 @@
     }
   }
 
-  window.images = images;
-  window.loadImages = loadImages;
+  // ✅ Attach images to game state so other modules use them
+  s.images = images;
+
+  // ✅ Load images and start game loop only after that
+  loadImages(() => {
+    requestAnimationFrame(window.mainLoop);
+  });
+
 })();
