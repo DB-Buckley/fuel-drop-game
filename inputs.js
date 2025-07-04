@@ -1,4 +1,6 @@
 const canvas = window.state.canvas;
+const images = window.state.images;
+
 
 let isDragging = false;
 
