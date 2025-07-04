@@ -1,4 +1,3 @@
-const { canvas, ctx, car, ... } = window.state;
 
 let isDragging = false;
 
