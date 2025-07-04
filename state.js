@@ -8,8 +8,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let PLAY_AREA_WIDTH = isMobile ? canvas.width * 0.95 : canvas.width * 0.6;
-let PLAY_AREA_LEFT = (canvas.width - PLAY_AREA_WIDTH) / 2;
+const PLAY_AREA_WIDTH = isMobile ? canvas.width * 0.95 : canvas.width * 0.6;
+const PLAY_AREA_LEFT = (canvas.width - PLAY_AREA_WIDTH) / 2;
 
 const car = {
   x: PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - 30,
@@ -57,7 +57,7 @@ let nextDifficultyThreshold = 300;
 let playerName = "";
 let leaderboard = JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]");
 
-// Make variables accessible in other modules
+// Export everything on a single state object for global access
 window.state = {
   canvas, ctx, isMobile,
   PLAY_AREA_WIDTH, PLAY_AREA_LEFT,
@@ -70,6 +70,5 @@ window.state = {
   showBonusBanner, showFuelPriceBanner, showFuelDecreaseBanner,
   fuelPriceBannerTimer, fuelPriceBannerDuration,
   fuelDecreaseTimer, fuelDecreaseBannerDuration,
-  playerName, leaderboard,
-  images: {} // Added this empty object for images
+  playerName, leaderboard
 };
