@@ -21,27 +21,59 @@
   }
 
   function drawTopUI() {
-    state.ctx.textAlign = "center";
-    const color = state.bonusActive ? "#222" : "#fff";
+    const ctx = state.ctx;
+    const { canvas, bonusActive, missedDrops, maxMisses, score, highScore, isMobile } = state;
+    ctx.textAlign = "center";
+
+    const color = bonusActive ? "#222" : "#fff";
+
+    // Main Score HUD
     drawText(
-      `Score: ${state.score} | Missed: ${state.missedDrops}/${state.maxMisses} | High Score: ${state.highScore}`,
-      state.canvas.width / 2,
+      `Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`,
+      canvas.width / 2,
       30,
       20,
       true,
       color
     );
 
-    for (let i = 0; i < state.maxMisses; i++) {
-      state.ctx.beginPath();
-      const x = state.canvas.width / 2 - 120 + i * 25;
-      state.ctx.arc(x, 60, 8, 0, 2 * Math.PI);
-      state.ctx.strokeStyle = color;
-      state.ctx.fillStyle = i < (state.maxMisses - state.missedDrops) ? color : "transparent";
-      state.ctx.lineWidth = 2;
-      state.ctx.fill();
-      state.ctx.stroke();
+    // Miss markers (dots)
+    for (let i = 0; i < maxMisses; i++) {
+      ctx.beginPath();
+      const x = canvas.width / 2 - 120 + i * 25;
+      ctx.arc(x, 60, 8, 0, 2 * Math.PI);
+      ctx.strokeStyle = color;
+      ctx.fillStyle = i < (maxMisses - missedDrops) ? color : "transparent";
+      ctx.lineWidth = 2;
+      ctx.fill();
+      ctx.stroke();
     }
+
+    // Pause instructions
+    const pauseText = isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause";
+    drawText(pauseText, canvas.width / 2, 90, 16, true, "#aaa");
+
+    // Drop Legends (bottom-left)
+    drawText("💛 Gold: +1", 20, canvas.height - 80, 16, false, "#f5c400");
+    drawText("💙 Blue: 5× Points (15s)", 20, canvas.height - 55, 16, false, "#00CFFF");
+    drawText("💚 Green: Slows Drops", 20, canvas.height - 30, 16, false, "#00ff88");
+
+    // Exit Button (top-right)
+    const btnW = 80;
+    const btnH = 32;
+    const btnX = canvas.width - btnW - 20;
+    const btnY = 20;
+
+    ctx.fillStyle = "#ff3b3b";
+    ctx.fillRect(btnX, btnY, btnW, btnH);
+    ctx.fillStyle = "#fff";
+    ctx.font = "18px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Exit", btnX + btnW / 2, btnY + btnH / 2);
+
+    // Save exit button bounds for inputs.js
+    state.exitButton = { x: btnX, y: btnY, width: btnW, height: btnH };
   }
 
   function drawBanners() {
@@ -79,19 +111,15 @@
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
     if (!isMobile) {
-      // Desktop: show input prompt on canvas
       drawText("Enter your name to begin:", state.canvas.width / 2, 240, 18, true);
       drawText(state.playerName + "_", state.canvas.width / 2, 270, 20, true);
 
-      // Hide mobile controls if any
       const mobileControls = document.getElementById('mobile-controls');
       if (mobileControls) mobileControls.style.display = 'none';
     } else {
-      // Mobile: show input box and button
       const mobileControls = document.getElementById('mobile-controls');
       if (mobileControls) {
         mobileControls.style.display = 'block';
-        // Sync input value with state.playerName
         const input = document.getElementById('mobile-player-name');
         if (input) input.value = state.playerName;
       }
@@ -111,7 +139,6 @@
     drawText(`High Score: ${state.highScore}`, state.canvas.width / 2, state.canvas.height / 2 + 30, 24, true);
     drawText("Tap or press Enter to Retry", state.canvas.width / 2, state.canvas.height / 2 + 70, 24, true);
 
-    // Hide mobile controls on game over
     const mobileControls = document.getElementById('mobile-controls');
     if (mobileControls) mobileControls.style.display = 'none';
   }
