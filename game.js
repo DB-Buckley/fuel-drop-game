@@ -165,3 +165,70 @@ canvas.addEventListener("click", () => {
 });
 
 mainLoop();
+
+let isDragging = false;
+let dragOffsetX = 0;
+
+canvas.addEventListener("mousedown", (e) => {
+  if (!gameStarted || gameOver) return;
+
+  const mouseX = e.clientX;
+  const mouseY = e.clientY;
+
+  if (
+    mouseX >= car.x &&
+    mouseX <= car.x + car.width &&
+    mouseY >= car.y &&
+    mouseY <= car.y + car.height
+  ) {
+    isDragging = true;
+    dragOffsetX = mouseX - car.x;
+  }
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (isDragging) {
+    car.x = e.clientX - dragOffsetX;
+    // Keep within bounds
+    car.x = Math.max(PLAY_AREA_LEFT, Math.min(car.x, PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width));
+  }
+});
+
+canvas.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+canvas.addEventListener("mouseleave", () => {
+  isDragging = false;
+});
+
+// 🟦 Touch controls for mobile
+canvas.addEventListener("touchstart", (e) => {
+  if (!gameStarted || gameOver) return;
+  const touch = e.touches[0];
+  const touchX = touch.clientX;
+  const touchY = touch.clientY;
+
+  if (
+    touchX >= car.x &&
+    touchX <= car.x + car.width &&
+    touchY >= car.y &&
+    touchY <= car.y + car.height
+  ) {
+    isDragging = true;
+    dragOffsetX = touchX - car.x;
+  }
+});
+
+canvas.addEventListener("touchmove", (e) => {
+  if (isDragging) {
+    const touch = e.touches[0];
+    car.x = touch.clientX - dragOffsetX;
+    car.x = Math.max(PLAY_AREA_LEFT, Math.min(car.x, PLAY_AREA_LEFT + PLAY_AREA_WIDTH - car.width));
+  }
+});
+
+canvas.addEventListener("touchend", () => {
+  isDragging = false;
+});
+
