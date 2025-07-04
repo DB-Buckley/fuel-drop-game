@@ -6,9 +6,16 @@
   <title>Mzansi Fuel Drop</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="data:,">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
+  <div id="mobile-controls">
+  <input type="text" id="mobile-player-name" placeholder="Enter your name" maxlength="12" />
+  <button id="mobile-start-btn">Start Game</button>
+  </div>
+
     <!-- Mobile controls, hidden on desktop -->
       <div id="mobile-controls" style="display: none; text-align: center; margin: 10px auto 0 auto; max-width: 320px;">
         <input
