@@ -59,10 +59,10 @@
     drawText("💚 Green: Slows Drops", 20, canvas.height - 30, 16, false, "#00ff88");
 
     // Exit Button (top-right)
-    const btnW = 70;
-    const btnH = 22;
-    const btnX = canvas.width - btnW - 20;
-    const btnY = 30;
+  const btnW = 70;
+  const btnH = 22;
+  const btnX = canvas.width - btnW - 20;
+  const btnY = state.isMobile ? canvas.height - btnH - 20 : 20;
 
     ctx.fillStyle = "#ff3b3b";
     ctx.fillRect(btnX, btnY, btnW, btnH);
