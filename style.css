@@ -1,9 +1,9 @@
-body {
+body, html {
   margin: 0;
+  padding: 0;
   overflow: hidden;
-  background-color: #222;
+  background: #000;
 }
 canvas {
   display: block;
-  background-color: #333;
 }
