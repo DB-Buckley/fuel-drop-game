@@ -54,8 +54,8 @@
     drawText(pauseText, canvas.width / 2, 90, 16, true, "#aaa");
 
     // Drop Legends (bottom-left)
-    drawText("💛 Gold: +1", 20, canvas.height - 80, 16, false, "#f5c400");
-    drawText("💙 Blue: 5× Points (15s)", 20, canvas.height - 55, 16, false, "#00CFFF");
+    drawText("💛 Gold: +10", 20, canvas.height - 80, 16, false, "#f5c400");
+    drawText("💙 Blue: 3× Points (15s)", 20, canvas.height - 55, 16, false, "#00CFFF");
     drawText("💚 Green: Slows Drops", 20, canvas.height - 30, 16, false, "#00ff88");
 
     // Exit Button (top-right)
