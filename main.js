@@ -4,6 +4,7 @@
   function startGame() {
     s.gameStarted = true;
     s.gameOver = false;
+    s.paused = false;
     s.score = 0;
     s.missedDrops = 0;
     s.bonusActive = false;
@@ -24,29 +25,25 @@
   function resetGame() {
     s.gameStarted = false;
     s.gameOver = false;
+    s.paused = false;
     s.playerName = "";
-    s.score = 0;
-    s.missedDrops = 0;
-    s.drops = [];
-    s.lastDropBonus = false;
-    s.lastDropGreen = false;
-    s.lastDropY = -50;
-    s.showBonusBanner = false;
-    s.showFuelPriceBanner = false;
-    s.showFuelDecreaseBanner = false;
   }
 
-  let animationStarted = false;
-
   function mainLoop(timestamp = 0) {
-    if (!animationStarted) {
-      animationStarted = true;
-    }
-
     if (!s.gameStarted) {
       window.renderStartScreen();
     } else if (s.gameOver) {
       window.renderGameOver();
+    } else if (s.paused) {
+      // Draw paused screen overlay
+      window.render(); // draw current game state
+      const ctx = s.ctx;
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0, 0, s.canvas.width, s.canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.font = "48px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Paused", s.canvas.width / 2, s.canvas.height / 2);
     } else {
       const now = Date.now();
 
@@ -55,7 +52,7 @@
         s.lastSpawn = now;
       }
 
-      window.updateDrops(16);       // Simulate ~60 FPS
+      window.updateDrops(16);
       window.updateBonus(16);
       window.updateDifficulty();
       window.render();
@@ -64,16 +61,7 @@
     requestAnimationFrame(mainLoop);
   }
 
-  // Wait for images to load, then start the loop
-  if (typeof window.loadImages === 'function') {
-    window.loadImages(() => {
-      mainLoop();
-    });
-  } else {
-    console.error("loadImages() not found on window.");
-  }
-
-  // Expose functions globally for inputs.js
+  // Expose functions globally for other scripts to use
   window.startGame = startGame;
   window.resetGame = resetGame;
   window.mainLoop = mainLoop;
