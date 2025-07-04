@@ -1,4 +1,4 @@
-const { canvas, car, PLAY_AREA_LEFT, PLAY_AREA_WIDTH, gameOver, gameStarted, playerName } = state;
+const { canvas, ctx, car, ... } = window.state;
 
 let isDragging = false;
 
