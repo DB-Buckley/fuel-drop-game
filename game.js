@@ -8,25 +8,6 @@ const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 let PLAY_AREA_WIDTH = isMobile ? canvas.width * 0.95 : canvas.width * 0.6;
 let PLAY_AREA_LEFT = (canvas.width - PLAY_AREA_WIDTH) / 2;
 
-// Load images
-const images = {
-  car: new Image(),
-  fuel_gold: new Image(),
-  fuel_bonus: new Image(),
-  fuel_green: new Image(),
-  banner_bonus: new Image(),
-  banner_increase: new Image(),
-  banner_decrease: new Image(),
-};
-
-images.car.src = 'assets/car.png';
-images.fuel_gold.src = 'assets/fuel_gold.png';
-images.fuel_bonus.src = 'assets/fuel_bonus.png';
-images.fuel_green.src = 'assets/fuel_green.png';
-images.banner_bonus.src = 'assets/banner_bonus.png';
-images.banner_increase.src = 'assets/banner_increase.png';
-images.banner_decrease.src = 'assets/banner_decrease.png';
-
 let car = {
   x: PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - 30,
   y: canvas.height - 100,
@@ -40,33 +21,13 @@ let dropSpeed = 2;
 let spawnInterval = 1500;
 let lastSpawn = performance.now();
 
-let lastDropY = -100;
-let lastDropBonus = false;
-let lastDropGreen = false;
-let fuelIncreases = 0;
-
 let score = 0;
-let highScore = 0;
 let missedDrops = 0;
-const maxMisses = 10;
 let gameOver = false;
 let gameStarted = false;
-
-let bonusActive = false;
-let bonusTimer = 0;
-const bonusDuration = 8000;
-
-let showBonusBanner = false;
-let showFuelPriceBanner = false;
-let fuelPriceBannerTimer = 0;
-let showFuelDecreaseBanner = false;
-let fuelDecreaseTimer = 0;
-let nextDifficultyThreshold = 500;
-
 let playerName = "";
-let leaderboard = JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]");
+let highScore = 0;
 
-// ---------------- DRAW FUNCTIONS ----------------
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
@@ -79,149 +40,79 @@ function drawText(text, x, y, size = 20, center = false, color = "#fff") {
 }
 
 function drawCar() {
-  ctx.drawImage(images.car, car.x, car.y, car.width, car.height);
+  ctx.fillStyle = "yellow";
+  ctx.fillRect(car.x, car.y, car.width, car.height);
 }
 
 function drawDrop(drop) {
-  let img = images.fuel_gold;
-  if (drop.bonus) img = images.fuel_bonus;
-  else if (drop.slowDown) img = images.fuel_green;
-  ctx.drawImage(img, drop.x - drop.radius, drop.y - drop.radius, drop.radius * 2, drop.radius * 2);
+  ctx.beginPath();
+  ctx.arc(drop.x, drop.y, drop.radius, 0, Math.PI * 2);
+  ctx.fillStyle = drop.bonus ? "blue" : drop.slowDown ? "green" : "red";
+  ctx.fill();
 }
 
 function drawTopUI() {
-  const color = bonusActive ? "#222" : "#fff";
-  drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
-  for (let i = 0; i < maxMisses; i++) {
-    ctx.beginPath();
-    const x = canvas.width / 2 - 120 + i * 25;
-    ctx.arc(x, 60, 8, 0, 2 * Math.PI);
-    ctx.strokeStyle = color;
-    ctx.fillStyle = i < (maxMisses - missedDrops) ? color : "transparent";
-    ctx.lineWidth = 2;
-    ctx.fill();
-    ctx.stroke();
-  }
+  drawText(`Score: ${score}`, 20, 30);
+  drawText(`Missed: ${missedDrops}`, 20, 60);
 }
 
-function drawBanners() {
-  if (showBonusBanner) ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
-  if (showFuelPriceBanner) ctx.drawImage(images.banner_increase, canvas.width / 2 - 150, 160, 300, 50);
-  if (showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
+function drawPlayAreaFrame() {
+  ctx.strokeStyle = "#888";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
 }
 
 function drawStartScreen() {
   clearCanvas();
-  drawText("Mzansi Fuel Drop", canvas.width / 2, 80, 36, true);
-  drawText("Catch golden drops to score points.", canvas.width / 2, 130, 20, true);
-  drawText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, 160, 18, true);
-  drawText("Bonus (blue) = 3x points. Green = slow speed.", canvas.width / 2, 190, 18, true);
-  drawText("Enter your name to begin:", canvas.width / 2, 240, 18, true);
-  drawText(playerName + "_", canvas.width / 2, 270, 20, true);
-  drawText("Top 10 High Scores:", canvas.width / 2, 320, 20, true);
-  leaderboard.slice(0, 10).forEach((entry, index) => {
-    drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, 350 + index * 24, 16, true);
-  });
+  drawText("Mzansi Fuel Drop", canvas.width / 2, 100, 32, true);
+  drawText("Enter your name to begin:", canvas.width / 2, 160, 20, true);
+  drawText(playerName + "_", canvas.width / 2, 200, 24, true);
 }
 
 function drawGameOver() {
   drawText("Game Over", canvas.width / 2, canvas.height / 2 - 40, 36, true);
   drawText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2, 24, true);
-  drawText(`High Score: ${highScore}`, canvas.width / 2, canvas.height / 2 + 30, 24, true);
-  drawText("Tap to Retry", canvas.width / 2, canvas.height / 2 + 70, 24, true);
+  drawText(`Tap to Retry`, canvas.width / 2, canvas.height / 2 + 40, 24, true);
 }
 
-// ---------------- DROP LOGIC ----------------
 function spawnDrop() {
-  let newY = -20;
-  if (Math.abs(newY - lastDropY) < 30) newY -= 30;
-  lastDropY = newY;
+  console.log("Drop spawned");
 
   const rand = Math.random();
-  let drop = {
+  drops.push({
     x: PLAY_AREA_LEFT + Math.random() * (PLAY_AREA_WIDTH - 20),
-    y: newY,
+    y: -20,
     radius: 10,
-    caught: false,
-    bonus: false,
-    slowDown: false
-  };
-
-  if (!bonusActive && !lastDropBonus && rand < 0.1) {
-    drop.bonus = true;
-    lastDropBonus = true;
-  } else if (!lastDropGreen && fuelIncreases >= 3 && rand >= 0.1 && rand < 0.12) {
-    drop.slowDown = true;
-    lastDropGreen = true;
-  } else {
-    lastDropBonus = false;
-    lastDropGreen = false;
-  }
-
-  drops.push(drop);
-}
-
-function updateDrops(delta) {
-  drops.forEach((drop, index) => {
-    drop.y += dropSpeed * (delta / 16);
-
-    if (!drop.caught &&
-        drop.y + drop.radius > car.y &&
-        drop.y - drop.radius < car.y + car.height &&
-        drop.x > car.x &&
-        drop.x < car.x + car.width) {
-      drop.caught = true;
-
-      if (drop.bonus) {
-        bonusActive = true;
-        bonusTimer = bonusDuration;
-        showBonusBanner = true;
-        score += 30;
-      } else if (drop.slowDown) {
-        dropSpeed *= 0.95;
-        showFuelDecreaseBanner = true;
-        fuelDecreaseTimer = 2000;
-        score += 10;
-      } else {
-        score += bonusActive ? 30 : 10;
-      }
-
-      if (score >= nextDifficultyThreshold) {
-        dropSpeed *= 1.15;
-        spawnInterval *= 0.85;
-        fuelIncreases++;
-        nextDifficultyThreshold += 500;
-        showFuelPriceBanner = true;
-        fuelPriceBannerTimer = 3000;
-      }
-    }
-
-    if (!drop.caught && drop.y > canvas.height) {
-      if (!drop.bonus && !drop.slowDown) {
-        missedDrops++;
-        if (missedDrops >= maxMisses) endGame();
-      }
-      drops.splice(index, 1);
-    }
+    bonus: rand < 0.1,
+    slowDown: rand >= 0.1 && rand < 0.12
   });
 }
 
-// ---------------- GAME FLOW ----------------
-function endGame() {
-  gameOver = true;
-  bonusActive = false;
-  updateLeaderboard();
-  if (score > highScore) highScore = score;
+function updateDrops() {
+  for (let i = drops.length - 1; i >= 0; i--) {
+    const d = drops[i];
+    d.y += dropSpeed;
+
+    if (
+      d.y + d.radius > car.y &&
+      d.y - d.radius < car.y + car.height &&
+      d.x > car.x &&
+      d.x < car.x + car.width
+    ) {
+      score += d.bonus ? 30 : 10;
+      drops.splice(i, 1);
+    } else if (d.y > canvas.height) {
+      missedDrops++;
+      drops.splice(i, 1);
+      if (missedDrops >= 10) {
+        gameOver = true;
+        if (score > highScore) highScore = score;
+      }
+    }
+  }
 }
 
-function updateLeaderboard() {
-  leaderboard.push({ name: playerName || "Anon", score });
-  leaderboard.sort((a, b) => b.score - a.score);
-  leaderboard = leaderboard.slice(0, 10);
-  localStorage.setItem("mzansi_leaderboard", JSON.stringify(leaderboard));
-}
-
-function mainLoop(timestamp) {
+function mainLoop() {
   clearCanvas();
 
   if (!gameStarted) {
@@ -229,85 +120,48 @@ function mainLoop(timestamp) {
   } else if (gameOver) {
     drawGameOver();
   } else {
+    drawPlayAreaFrame();
     drawTopUI();
-    drawBanners();
     drawCar();
     drops.forEach(drawDrop);
 
-    const now = performance.now();
-    if (now - lastSpawn > spawnInterval) {
+    if (performance.now() - lastSpawn > spawnInterval) {
       spawnDrop();
-      lastSpawn = now;
+      lastSpawn = performance.now();
     }
 
-    updateDrops(16);
-
-    if (bonusActive) {
-      bonusTimer -= 16;
-      if (bonusTimer <= 0) {
-        bonusActive = false;
-        showBonusBanner = false;
-      }
-    }
-
-    if (showFuelPriceBanner) {
-      fuelPriceBannerTimer -= 16;
-      if (fuelPriceBannerTimer <= 0) showFuelPriceBanner = false;
-    }
-
-    if (showFuelDecreaseBanner) {
-      fuelDecreaseTimer -= 16;
-      if (fuelDecreaseTimer <= 0) showFuelDecreaseBanner = false;
-    }
+    updateDrops();
   }
 
   requestAnimationFrame(mainLoop);
 }
 
-function moveLeft() {
-  if (car.x > PLAY_AREA_LEFT) {
-    car.x -= car.speed;
-  }
+function startGame() {
+  gameStarted = true;
+  gameOver = false;
+  score = 0;
+  missedDrops = 0;
+  drops = [];
+  lastSpawn = performance.now();
+  car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - car.width / 2;
 }
 
-function moveRight() {
-  if (car.x + car.width < PLAY_AREA_LEFT + PLAY_AREA_WIDTH) {
-    car.x += car.speed;
-  }
-}
-
-// ---------------- INPUT ----------------
+// INPUT
 document.addEventListener("keydown", e => {
-  if (!gameStarted && !gameOver && playerName.length < 12 && /^[a-zA-Z0-9 ]$/.test(e.key)) {
-    playerName += e.key;
+  if (!gameStarted && !gameOver && /^[a-zA-Z0-9 ]$/.test(e.key)) {
+    if (playerName.length < 12) playerName += e.key;
   } else if (!gameStarted && !gameOver && e.key === "Backspace") {
     playerName = playerName.slice(0, -1);
   } else if (!gameStarted && !gameOver && e.key === "Enter" && playerName.length > 0) {
     startGame();
   }
 
-  if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
-  if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
+  if (["ArrowLeft", "a", "A"].includes(e.key)) car.x -= car.speed;
+  if (["ArrowRight", "d", "D"].includes(e.key)) car.x += car.speed;
 });
 
 canvas.addEventListener("click", () => {
   if (gameOver) startGame();
 });
 
-function startGame() {
-  gameStarted = true;
-  gameOver = false;
-  drops = [];
-  dropSpeed = 2;
-  spawnInterval = 1500;
-  score = 0;
-  missedDrops = 0;
-  fuelIncreases = 0;
-  bonusActive = false;
-  nextDifficultyThreshold = 500;
-  car.x = PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - car.width / 2;
-  lastSpawn = performance.now(); // ✅ fix: reset spawn timing
-}
-
-// Start game loop
 mainLoop();
