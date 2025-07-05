@@ -138,14 +138,12 @@
 
     if (!isMobile) {
       const offsetX = canvas.width / 2 + 180;
-      drawText("Catch golden drops to score points.", offsetX, 130, 20);
-      drawText("Avoid missing drops. 10 misses = Game Over.", offsetX, 160, 18);
-      drawText("Bonus (blue) = 3x points. Green = slow speed.", offsetX, 190, 18);
+      drawText("Catch golden drops to score points. Don't Miss", offsetX, 130, 20);
+      
+      drawText("Enter your name to begin:", offsetX, 210, 18);
+      drawText(state.playerName + "_", offsetX, 240, 20);
 
-      drawText("Enter your name to begin:", offsetX, 240, 18);
-      drawText(state.playerName + "_", offsetX, 270, 20);
-
-      drawText("Top 10 High Scores:", offsetX, 320, 20);
+      drawText("Top 10 High Scores:", offsetX, 290, 20);
       state.leaderboard.slice(0, 10).forEach((entry, index) => {
         drawText(`${index + 1}. ${entry.name}: ${entry.score}`, offsetX, 350 + index * 24, 16);
       });
@@ -153,9 +151,8 @@
       if (mobileControls) mobileControls.style.display = "none";
     } else {
       // Instructions (moved down)
-      drawText("Catch golden drops to score points.", canvas.width / 2, 160, 18, true);
-      drawText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, 185, 16, true);
-      drawText("Bonus (blue) = 3x points. Green = slow speed.", canvas.width / 2, 210, 16, true);
+      drawText("Catch golden drops to score points. Don't Miss", canvas.width / 2, 160, 18, true);
+     
 
       if (mobileControls) {
         mobileControls.style.display = "block";
