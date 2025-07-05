@@ -9,7 +9,7 @@ html, body {
   max-height: 100dvh;
   overscroll-behavior: none;
   font-family: sans-serif;
-  
+
   /* Account for iOS safe areas */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -25,13 +25,17 @@ canvas {
 /* Mobile controls container */
 #mobile-controls {
   position: absolute;
-  bottom: env(safe-area-inset-bottom, 10px);
-  left: 0;
-  right: 0;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
-  padding: 10px;
-  background-color: rgba(0, 0, 0, 0.85);
+  padding: 10px 20px;
+  background-color: rgba(0, 0, 0, 0.75);
   z-index: 10;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  width: 90%;
+  max-width: 320px;
 }
 
 /* Hide on desktop */
@@ -47,8 +51,7 @@ canvas {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 auto;
-    max-width: 320px;
+    gap: 12px;
   }
 }
 
@@ -66,7 +69,6 @@ canvas {
 
 /* Mobile start button */
 #mobile-start-btn {
-  margin-top: 10px;
   font-size: 20px;
   padding: 12px 20px;
   cursor: pointer;
@@ -75,9 +77,27 @@ canvas {
   background-color: #1c63ff;
   color: white;
   border: none;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: background-color 0.2s ease;
+}
+
+#mobile-start-btn:hover {
+  background-color: #1551cc;
 }
 
 /* Utility class to hide elements */
 .hidden {
   display: none !important;
+}
+
+/* Optional: Overlay if you want to animate the darkening */
+.dark-overlay {
+  background-color: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
 }
