@@ -1,5 +1,3 @@
-// state.js
-
 const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
 
 const canvas = document.getElementById('gameCanvas');
@@ -66,6 +64,7 @@ const state = {
 
   playerName: "",
   leaderboard: JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]"),
+};  // <--- This closing brace and semicolon was missing
 
 // Expose state globally
 window.state = state;
