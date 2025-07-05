@@ -138,7 +138,7 @@
 
     if (!isMobile) {
       const offsetX = canvas.width / 2 + 180;
-      drawText("Catch golden drops to score points. Don't Miss", offsetX, 130, 20);
+      drawText("Catch golden drops to score points. Don't Miss", offsetX, 190, 20);
       
       drawText("Enter your name to begin:", offsetX, 210, 18);
       drawText(state.playerName + "_", offsetX, 240, 20);
