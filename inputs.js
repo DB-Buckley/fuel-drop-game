@@ -6,6 +6,9 @@
   let isDragging = false;
   let lastTap = 0;
 
+  const nameInput = document.getElementById("mobile-player-name");
+  const mobileControls = document.getElementById("mobile-controls");
+
   function clampCarPosition() {
     if (car.x < s.PLAY_AREA_LEFT) {
       car.x = s.PLAY_AREA_LEFT;
@@ -37,7 +40,7 @@
       s.playerName = s.playerName.slice(0, -1);
     } else if (!s.gameStarted && !s.gameOver && e.key === "Enter" && s.playerName.length > 0) {
       window.startGame();
-      document.getElementById("mobile-controls")?.classList.add("hidden");
+      mobileControls?.classList.add("hidden");
     }
 
     if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
@@ -46,7 +49,7 @@
     if (s.gameOver && e.key === "Enter") {
       window.resetGame();
       window.startGame();
-      document.getElementById("mobile-controls")?.classList.add("hidden");
+      mobileControls?.classList.add("hidden");
     }
 
     if ((e.key === "p" || e.key === "Escape") && s.gameStarted) {
@@ -54,17 +57,16 @@
     }
   });
 
-  // --- MOUSE DRAG & CLICK ---
+  // --- MOUSE INPUT ---
   canvas.addEventListener("mousedown", (e) => {
     if (checkExitClick(e.clientX, e.clientY)) {
       window.resetGame();
       return;
     }
-
     if (s.gameOver) {
       window.resetGame();
       window.startGame();
-      document.getElementById("mobile-controls")?.classList.add("hidden");
+      mobileControls?.classList.add("hidden");
     } else {
       isDragging = true;
       car.x = e.clientX - car.width / 2;
@@ -83,8 +85,11 @@
     isDragging = false;
   });
 
-  // --- TOUCH DRAG & TAP ---
+  // --- TOUCH INPUT ---
   canvas.addEventListener("touchstart", (e) => {
+    // 🛑 Ignore touches on input or its container
+    if (e.target === nameInput || nameInput?.contains(e.target)) return;
+
     const now = Date.now();
     if (now - lastTap < 300) {
       if (s.gameStarted && !s.gameOver) {
@@ -102,7 +107,7 @@
     if (s.gameOver) {
       window.resetGame();
       window.startGame();
-      document.getElementById("mobile-controls")?.classList.add("hidden");
+      mobileControls?.classList.add("hidden");
     } else {
       isDragging = true;
       car.x = touch.clientX - car.width / 2;
@@ -111,19 +116,23 @@
   });
 
   canvas.addEventListener("touchmove", (e) => {
-    if (isDragging) {
+    if (
+      isDragging &&
+      e.target !== nameInput &&
+      !nameInput?.contains(e.target)
+    ) {
       const touch = e.touches[0];
       car.x = touch.clientX - car.width / 2;
       clampCarPosition();
+      e.preventDefault();
     }
-    e.preventDefault();
   });
 
   canvas.addEventListener("touchend", () => {
     isDragging = false;
   });
 
-  // --- CLICK TO RESTART ---
+  // --- TAP TO RESTART ---
   canvas.addEventListener("click", (e) => {
     if (checkExitClick(e.clientX, e.clientY)) {
       window.resetGame();
@@ -133,14 +142,13 @@
     if (s.gameOver) {
       window.resetGame();
       window.startGame();
-      document.getElementById("mobile-controls")?.classList.add("hidden");
+      mobileControls?.classList.add("hidden");
     }
   });
 
-  // --- MOBILE START BUTTON ---
+  // --- MOBILE INPUT HANDLER ---
   document.addEventListener("DOMContentLoaded", () => {
     const startBtn = document.getElementById("mobile-start-btn");
-    const nameInput = document.getElementById("mobile-player-name");
 
     if (startBtn && nameInput) {
       startBtn.addEventListener("click", () => {
@@ -151,12 +159,16 @@
         }
         s.playerName = name;
         window.startGame();
-        document.getElementById("mobile-controls")?.classList.add("hidden");
+        mobileControls?.classList.add("hidden");
+      });
+
+      nameInput.addEventListener("input", () => {
+        s.playerName = nameInput.value;
       });
     }
   });
 
-  // --- Exit Button Logic ---
+  // --- Exit Button ---
   function checkExitClick(x, y) {
     const btn = s.exitButton;
     if (!btn) return false;
