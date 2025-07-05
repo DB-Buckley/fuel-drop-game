@@ -4,33 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Mzansi Fuel Drop</title>
+
+  <!-- Optional: Better look on mobile address bar -->
+  <meta name="theme-color" content="#1c63ff" />
+
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="data:," />
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
 
-  <!-- Mobile controls, visible only on mobile -->
-  <div id="mobile-controls" style="text-align: center; margin: 10px auto 0 auto; max-width: 320px;">
+  <!-- Mobile controls -->
+  <div id="mobile-controls">
     <input
       id="mobile-player-name"
       type="text"
       maxlength="12"
       placeholder="Enter your name"
-      style="font-size: 18px; padding: 10px; width: 100%; box-sizing: border-box; border-radius: 6px; border: 1px solid #ccc;"
       autocomplete="off"
       autocorrect="off"
       autocapitalize="words"
       spellcheck="false"
     />
-    <button
-      id="mobile-start-btn"
-      style="margin-top: 10px; font-size: 20px; padding: 12px 20px; cursor: pointer; width: 100%; border-radius: 6px; background-color: #1c63ff; color: white; border: none;"
-    >
-      Start Game
-    </button>
+    <button id="mobile-start-btn">Start Game</button>
   </div>
 
+  <!-- JavaScript modules -->
   <script src="state.js"></script>
   <script src="assets.js"></script>
   <script src="main.js"></script>
