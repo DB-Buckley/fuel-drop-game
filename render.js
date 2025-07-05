@@ -1,7 +1,6 @@
 (function () {
   const state = window.state;
 
-  // === Helpers ===
   function drawText(text, x, y, size = 20, center = false, color = "#fff") {
     const ctx = state.ctx;
     ctx.fillStyle = color;
@@ -23,7 +22,6 @@
     }
   }
 
-  // === Game Rendering ===
   function drawCar() {
     const img = state.images.car;
     state.ctx.drawImage(img, state.car.x, state.car.y, state.car.width, state.car.height);
@@ -56,7 +54,6 @@
 
     drawText(isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause", canvas.width / 2, 90, 16, true, "#aaa");
 
-    // Legends
     if (isMobile) {
       const legends = [
         { img: state.images.fuel_gold, text: "+10" },
@@ -64,24 +61,24 @@
         { img: state.images.fuel_green, text: "Slow" },
       ];
       const totalWidth = legends.length * 64 + (legends.length - 1) * 20;
-      let startX = (canvas.width - totalWidth) / 2;
-      const legendY = canvas.height - 40;
+      let startX = (state.canvas.width - totalWidth) / 2;
+      const legendY = state.canvas.height - 40;
 
-      ctx.globalAlpha = 0.75;
+      state.ctx.globalAlpha = 0.75;
       legends.forEach(({ img, text }) => {
-        ctx.drawImage(img, startX, legendY - 24, 32, 32);
+        state.ctx.drawImage(img, startX, legendY - 24, 32, 32);
         drawText(text, startX + 16, legendY + 18, 14, true, "#fff");
         startX += 64;
       });
-      ctx.globalAlpha = 1;
+      state.ctx.globalAlpha = 1;
     } else {
       const legendX = 20;
-      let legendY = canvas.height - 130;
+      let legendY = state.canvas.height - 130;
       const imgSize = 24;
       const spacing = 8;
 
       function drawLegend(img, label) {
-        ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
+        state.ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
         drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
         legendY += imgSize + 10;
       }
@@ -93,12 +90,11 @@
   }
 
   function drawExitButton() {
-    const isMobile = state.isMobile;
-    const ctx = state.ctx;
+    const { isMobile, ctx, canvas } = state;
     const btnW = isMobile ? 40 : 80;
     const btnH = 32;
-    const btnX = state.canvas.width - btnW - 20;
-    const btnY = isMobile ? state.canvas.height - btnH - 20 : 20;
+    const btnX = canvas.width - btnW - 20;
+    const btnY = isMobile ? canvas.height - btnH - 20 : 20;
 
     ctx.fillStyle = "rgba(50, 50, 50, 0.7)";
     ctx.strokeStyle = "#fff";
@@ -114,7 +110,6 @@
   }
 
   function drawLogo() {
-    // Removed logo on desktop
     return;
   }
 
@@ -130,7 +125,6 @@
     const splash = isMobile ? images.splash_mobile : images.splash_desktop;
     ctx.drawImage(splash, 0, 0, canvas.width, canvas.height);
 
-    // Dark overlay
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -139,39 +133,31 @@
     if (!isMobile) {
       const offsetX = canvas.width / 2 + 180;
 
-      // Desktop text changed to "Catch gold drops..."
       drawText("Catch gold drops to score points. Don't Miss!", offsetX, 260, 20);
-
       drawText("Enter your name to begin:", offsetX, 210, 18);
       drawText(state.playerName + "_", offsetX, 240, 20);
-
-      // Leaderboard background box
-      const leaderboardX = offsetX - 130;
-      const leaderboardY = 280;
-      const leaderboardWidth = 260;
-      const leaderboardHeight = 260;
-
-      ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-      ctx.fillRect(leaderboardX, leaderboardY, leaderboardWidth, leaderboardHeight);
-
       drawText("Top 10 High Scores:", offsetX, 290, 20);
+
       state.leaderboard.slice(0, 10).forEach((entry, index) => {
         drawText(`${index + 1}. ${entry.name}: ${entry.score}`, offsetX, 350 + index * 24, 16);
       });
 
+      const box = document.getElementById("leaderboard-box");
+      if (box) {
+        const boxX = offsetX - 10;
+        box.style.left = `${boxX}px`;
+        box.style.top = `280px`;
+        box.style.display = "block";
+      }
+
       if (mobileControls) mobileControls.style.display = "none";
     } else {
-      // MOBILE
-
-      // Move instruction text down by ~80px (from ~180 to 260)
       drawText("Catch golden drops to score points. Don't Miss", canvas.width / 2, 260, 18, true);
 
       if (mobileControls) {
         mobileControls.style.display = "block";
         mobileControls.style.position = "absolute";
         mobileControls.style.left = "50%";
-
-        // Move controls container UP by ~100px (was 65%, changed to 45%)
         mobileControls.style.top = "45%";
         mobileControls.style.transform = "translate(-50%, -50%)";
         mobileControls.style.textAlign = "center";
@@ -183,9 +169,8 @@
         }
       }
 
-      // Leaderboard background box for mobile, moved up by 100px
       const lbX = canvas.width / 2 - 130;
-      const lbY = canvas.height - 280; // 180 + 100 up
+      const lbY = canvas.height - 280;
       const lbWidth = 260;
       const lbHeight = 240;
 
@@ -196,6 +181,9 @@
       state.leaderboard.slice(0, 10).forEach((entry, index) => {
         drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, lbY + 70 + index * 20, 16, true);
       });
+
+      const box = document.getElementById("leaderboard-box");
+      if (box) box.style.display = "none";
     }
   }
 
@@ -210,7 +198,6 @@
     if (mobileControls) mobileControls.style.display = "none";
   }
 
-  // === Exported Functions ===
   window.render = function () {
     clearCanvas();
     drawCar();
@@ -222,4 +209,15 @@
 
   window.renderStartScreen = drawStartScreen;
   window.renderGameOver = drawGameOver;
+
+  function positionLeaderboardBox() {
+    const box = document.getElementById("leaderboard-box");
+    if (!box || window.innerWidth < 768) return;
+    const offsetX = window.innerWidth / 2 + 180;
+    box.style.left = `${offsetX - 10}px`;
+    box.style.top = "280px";
+  }
+
+  window.addEventListener("resize", positionLeaderboardBox);
+  window.addEventListener("load", positionLeaderboardBox);
 })();
