@@ -152,7 +152,7 @@
 
       if (mobileControls) mobileControls.style.display = "none";
     } else {
-      drawText("Catch golden drops to score points. Don't Miss", canvas.width / 2, 260, 18, true);
+      drawText("Catch golden drops to score points. Don't Miss", canvas.width / 2, 230, 18, true);
 
       if (mobileControls) {
         mobileControls.style.display = "block";
