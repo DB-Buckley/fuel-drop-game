@@ -114,12 +114,8 @@
   }
 
   function drawLogo() {
-    if (state.isMobile || !state.images.mzansiLogo) return;
-    const size = 128;
-    const padding = 20;
-    const x = state.canvas.width - size - padding;
-    const y = padding;
-    state.ctx.drawImage(state.images.mzansiLogo, x, y, size, size);
+    // Removed logo on desktop
+    return;
   }
 
   function drawBanners() {
@@ -129,40 +125,58 @@
     if (state.showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
   }
 
-  // === Start & End Screens ===
   function drawStartScreen() {
     const { ctx, canvas, isMobile, images } = state;
     const splash = isMobile ? images.splash_mobile : images.splash_desktop;
     ctx.drawImage(splash, 0, 0, canvas.width, canvas.height);
 
-    drawText("Mzansi Fuel Drop", canvas.width / 2, 80, 36, true);
-    drawText("Catch golden drops to score points.", canvas.width / 2, 130, 20, true);
-    drawText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, 160, 18, true);
-    drawText("Bonus (blue) = 3x points. Green = slow speed.", canvas.width / 2, 190, 18, true);
+    // Dark overlay
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     const mobileControls = document.getElementById("mobile-controls");
 
     if (!isMobile) {
-      drawText("Enter your name to begin:", canvas.width / 2, 240, 18, true);
-      drawText(state.playerName + "_", canvas.width / 2, 270, 20, true);
+      const offsetX = canvas.width / 2 + 180;
+      drawText("Catch golden drops to score points.", offsetX, 130, 20);
+      drawText("Avoid missing drops. 10 misses = Game Over.", offsetX, 160, 18);
+      drawText("Bonus (blue) = 3x points. Green = slow speed.", offsetX, 190, 18);
+
+      drawText("Enter your name to begin:", offsetX, 240, 18);
+      drawText(state.playerName + "_", offsetX, 270, 20);
+
+      drawText("Top 10 High Scores:", offsetX, 320, 20);
+      state.leaderboard.slice(0, 10).forEach((entry, index) => {
+        drawText(`${index + 1}. ${entry.name}: ${entry.score}`, offsetX, 350 + index * 24, 16);
+      });
+
       if (mobileControls) mobileControls.style.display = "none";
     } else {
+      // Instructions (moved down)
+      drawText("Catch golden drops to score points.", canvas.width / 2, 160, 18, true);
+      drawText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, 185, 16, true);
+      drawText("Bonus (blue) = 3x points. Green = slow speed.", canvas.width / 2, 210, 16, true);
+
       if (mobileControls) {
         mobileControls.style.display = "block";
+        mobileControls.style.position = "absolute";
+        mobileControls.style.left = "50%";
+        mobileControls.style.top = "65%";
+        mobileControls.style.transform = "translate(-50%, -50%)";
+        mobileControls.style.textAlign = "center";
+
         const input = document.getElementById("mobile-player-name");
         if (input) {
           input.value = state.playerName;
           input.addEventListener("touchstart", () => setTimeout(() => input.focus(), 100), { once: true });
         }
       }
+
+      drawText("Top 10 High Scores:", canvas.width / 2, canvas.height - 140, 20, true);
+      state.leaderboard.slice(0, 10).forEach((entry, index) => {
+        drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, canvas.height - 110 + index * 20, 16, true);
+      });
     }
-
-    drawText("Top 10 High Scores:", canvas.width / 2, 320, 20, true);
-    state.leaderboard.slice(0, 10).forEach((entry, index) => {
-      drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, 350 + index * 24, 16, true);
-    });
-
-    drawLogo();
   }
 
   function drawGameOver() {
@@ -174,8 +188,6 @@
 
     const mobileControls = document.getElementById("mobile-controls");
     if (mobileControls) mobileControls.style.display = "none";
-
-    drawLogo();
   }
 
   // === Exported Functions ===
@@ -186,7 +198,6 @@
     drawTopUI();
     drawBanners();
     drawExitButton();
-    drawLogo();
   };
 
   window.renderStartScreen = drawStartScreen;
