@@ -1,8 +1,29 @@
 (function () {
   const state = window.state;
-  state.splashStartTime = Date.now();
-  state.splashDuration = 2000; // 2 seconds
 
+  // === Helpers ===
+  function drawText(text, x, y, size = 20, center = false, color = "#fff") {
+    const ctx = state.ctx;
+    ctx.fillStyle = color;
+    ctx.font = `${size}px Arial`;
+    ctx.textAlign = center ? "center" : "left";
+    ctx.fillText(text, x, y);
+  }
+
+  function clearCanvas() {
+    const { ctx, canvas, bonusActive, isMobile, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bonusActive ? "#1c63ff" : "#111";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (!isMobile) {
+      ctx.strokeStyle = bonusActive ? "#333" : "#666";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
+    }
+  }
+
+  // === Game Rendering ===
   function drawCar() {
     const img = state.images.car;
     state.ctx.drawImage(img, state.car.x, state.car.y, state.car.width, state.car.height);
@@ -15,18 +36,9 @@
     state.ctx.drawImage(img, drop.x - drop.radius, drop.y - drop.radius, drop.radius * 2, drop.radius * 2);
   }
 
-  function drawText(text, x, y, size = 20, center = false, color = "#fff") {
-    const ctx = state.ctx;
-    ctx.fillStyle = color;
-    ctx.font = `${size}px Arial`;
-    ctx.textAlign = center ? "center" : "left";
-    ctx.fillText(text, x, y);
-  }
-
   function drawTopUI() {
     const ctx = state.ctx;
     const { canvas, bonusActive, missedDrops, maxMisses, score, highScore, isMobile } = state;
-    ctx.textAlign = "center";
     const color = bonusActive ? "#222" : "#fff";
 
     drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
@@ -42,9 +54,9 @@
       ctx.stroke();
     }
 
-    const pauseText = isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause";
-    drawText(pauseText, canvas.width / 2, 90, 16, true, "#aaa");
+    drawText(isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause", canvas.width / 2, 90, 16, true, "#aaa");
 
+    // Legends
     if (isMobile) {
       const legends = [
         { img: state.images.fuel_gold, text: "+10" },
@@ -110,16 +122,6 @@
     state.ctx.drawImage(state.images.mzansiLogo, x, y, size, size);
   }
 
-  function drawSplashScreen() {
-    const splash = state.isMobile ? state.images.splash_mobile : state.images.splash_desktop;
-    if (splash?.complete && splash.naturalWidth > 0) {
-      state.ctx.drawImage(splash, 0, 0, state.canvas.width, state.canvas.height);
-    } else {
-      state.ctx.fillStyle = "#111";
-      state.ctx.fillRect(0, 0, state.canvas.width, state.canvas.height);
-    }
-  }
-
   function drawBanners() {
     const { ctx, images, canvas } = state;
     if (state.showBonusBanner) ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
@@ -127,39 +129,22 @@
     if (state.showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
   }
 
-  function clearCanvas() {
-    const { ctx, canvas, bonusActive, isMobile, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bonusActive ? "#1c63ff" : "#111";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if (!isMobile) {
-      ctx.strokeStyle = bonusActive ? "#333" : "#666";
-      ctx.lineWidth = 4;
-      ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
-    }
-  }
-
+  // === Start & End Screens ===
   function drawStartScreen() {
-    const timeElapsed = Date.now() - state.splashStartTime;
-    if (timeElapsed < state.splashDuration) {
-      drawSplashScreen();
-      return;
-    }
+    const { ctx, canvas, isMobile, images } = state;
+    const splash = isMobile ? images.splash_mobile : images.splash_desktop;
+    ctx.drawImage(splash, 0, 0, canvas.width, canvas.height);
 
-    clearCanvas();
+    drawText("Mzansi Fuel Drop", canvas.width / 2, 80, 36, true);
+    drawText("Catch golden drops to score points.", canvas.width / 2, 130, 20, true);
+    drawText("Avoid missing drops. 10 misses = Game Over.", canvas.width / 2, 160, 18, true);
+    drawText("Bonus (blue) = 3x points. Green = slow speed.", canvas.width / 2, 190, 18, true);
 
-    drawText("Mzansi Fuel Drop", state.canvas.width / 2, 80, 36, true);
-    drawText("Catch golden drops to score points.", state.canvas.width / 2, 130, 20, true);
-    drawText("Avoid missing drops. 10 misses = Game Over.", state.canvas.width / 2, 160, 18, true);
-    drawText("Bonus (blue) = 3x points. Green = slow speed.", state.canvas.width / 2, 190, 18, true);
-
-    const isMobile = state.isMobile;
     const mobileControls = document.getElementById("mobile-controls");
 
     if (!isMobile) {
-      drawText("Enter your name to begin:", state.canvas.width / 2, 240, 18, true);
-      drawText(state.playerName + "_", state.canvas.width / 2, 270, 20, true);
+      drawText("Enter your name to begin:", canvas.width / 2, 240, 18, true);
+      drawText(state.playerName + "_", canvas.width / 2, 270, 20, true);
       if (mobileControls) mobileControls.style.display = "none";
     } else {
       if (mobileControls) {
@@ -172,9 +157,9 @@
       }
     }
 
-    drawText("Top 10 High Scores:", state.canvas.width / 2, 320, 20, true);
+    drawText("Top 10 High Scores:", canvas.width / 2, 320, 20, true);
     state.leaderboard.slice(0, 10).forEach((entry, index) => {
-      drawText(`${index + 1}. ${entry.name}: ${entry.score}`, state.canvas.width / 2, 350 + index * 24, 16, true);
+      drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, 350 + index * 24, 16, true);
     });
 
     drawLogo();
@@ -193,6 +178,7 @@
     drawLogo();
   }
 
+  // === Exported Functions ===
   window.render = function () {
     clearCanvas();
     drawCar();
