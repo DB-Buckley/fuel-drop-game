@@ -9,7 +9,9 @@
     banner_bonus: new Image(),
     banner_increase: new Image(),
     banner_decrease: new Image(),
-    mzansiLogo: new Image(),  // <-- Add logo here
+    mzansiLogo: new Image(),
+    splash_desktop: new Image(),
+    splash_mobile: new Image(),
   };
 
   const imagePaths = {
@@ -20,7 +22,9 @@
     banner_bonus: 'assets/banner_bonus.png',
     banner_increase: 'assets/banner_increase.png',
     banner_decrease: 'assets/banner_decrease.png',
-    mzansiLogo: 'assets/mzansi_logo.png',  // <-- Add your logo file path here
+    mzansiLogo: 'assets/mzansi_logo.png',
+    splash_desktop: 'assets/splash_desktop.png', 
+    splash_mobile: 'assets/splash_mobile.png', 
   };
 
   function loadImages(callback) {
