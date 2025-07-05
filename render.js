@@ -138,10 +138,21 @@
 
     if (!isMobile) {
       const offsetX = canvas.width / 2 + 180;
-      drawText("Catch golden drops to score points. Don't Miss", offsetX, 260, 20);
-      
+
+      // Desktop text changed to "Catch gold drops..."
+      drawText("Catch gold drops to score points. Don't Miss!", offsetX, 260, 20);
+
       drawText("Enter your name to begin:", offsetX, 210, 18);
       drawText(state.playerName + "_", offsetX, 240, 20);
+
+      // Leaderboard background box
+      const leaderboardX = offsetX - 130;
+      const leaderboardY = 280;
+      const leaderboardWidth = 260;
+      const leaderboardHeight = 260;
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+      ctx.fillRect(leaderboardX, leaderboardY, leaderboardWidth, leaderboardHeight);
 
       drawText("Top 10 High Scores:", offsetX, 290, 20);
       state.leaderboard.slice(0, 10).forEach((entry, index) => {
@@ -150,15 +161,18 @@
 
       if (mobileControls) mobileControls.style.display = "none";
     } else {
-      // Instructions (moved down)
+      // MOBILE
+
+      // Move instruction text down by ~80px (from ~180 to 260)
       drawText("Catch golden drops to score points. Don't Miss", canvas.width / 2, 260, 18, true);
-     
 
       if (mobileControls) {
         mobileControls.style.display = "block";
         mobileControls.style.position = "absolute";
         mobileControls.style.left = "50%";
-        mobileControls.style.top = "65%";
+
+        // Move controls container UP by ~100px (was 65%, changed to 45%)
+        mobileControls.style.top = "45%";
         mobileControls.style.transform = "translate(-50%, -50%)";
         mobileControls.style.textAlign = "center";
 
@@ -169,9 +183,18 @@
         }
       }
 
-      drawText("Top 10 High Scores:", canvas.width / 2, canvas.height - 140, 20, true);
+      // Leaderboard background box for mobile, moved up by 100px
+      const lbX = canvas.width / 2 - 130;
+      const lbY = canvas.height - 280; // 180 + 100 up
+      const lbWidth = 260;
+      const lbHeight = 240;
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+      ctx.fillRect(lbX, lbY, lbWidth, lbHeight);
+
+      drawText("Top 10 High Scores:", canvas.width / 2, lbY + 40, 20, true);
       state.leaderboard.slice(0, 10).forEach((entry, index) => {
-        drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, canvas.height - 110 + index * 20, 16, true);
+        drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, lbY + 70 + index * 20, 16, true);
       });
     }
   }
