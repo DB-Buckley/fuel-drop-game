@@ -75,4 +75,14 @@ const state = {
   },
 };
 
+// Load background images into state.images
+const bgDesktopImg = new Image();
+bgDesktopImg.src = 'images/bg_desktop.png'; // <-- Change path as needed
+state.images.bg_desktop = bgDesktopImg;
+
+const bgMobileImg = new Image();
+bgMobileImg.src = 'images/bg_mobile.png';  // <-- Change path as needed
+state.images.bg_mobile = bgMobileImg;
+
+// Expose state globally
 window.state = state;
