@@ -1,5 +1,7 @@
 (function () {
   const state = window.state;
+  state.splashStartTime = Date.now();
+  state.splashDuration = 2000; // 2 seconds
 
   function drawCar() {
     const img = state.images.car;
@@ -27,10 +29,8 @@
     ctx.textAlign = "center";
     const color = bonusActive ? "#222" : "#fff";
 
-    // Main HUD
     drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
 
-    // Missed drops dots
     for (let i = 0; i < maxMisses; i++) {
       ctx.beginPath();
       const x = canvas.width / 2 - 120 + i * 25;
@@ -42,13 +42,10 @@
       ctx.stroke();
     }
 
-    // Pause text
     const pauseText = isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause";
     drawText(pauseText, canvas.width / 2, 90, 16, true, "#aaa");
 
-    // Legends
     if (isMobile) {
-      // Inline mobile layout with 75% opacity
       const legends = [
         { img: state.images.fuel_gold, text: "+10" },
         { img: state.images.fuel_bonus, text: "3×" },
@@ -66,7 +63,6 @@
       });
       ctx.globalAlpha = 1;
     } else {
-      // Desktop stacked layout
       const legendX = 20;
       let legendY = canvas.height - 130;
       const imgSize = 24;
@@ -114,6 +110,16 @@
     state.ctx.drawImage(state.images.mzansiLogo, x, y, size, size);
   }
 
+  function drawSplashScreen() {
+    const splash = state.isMobile ? state.images.splash_mobile : state.images.splash_desktop;
+    if (splash?.complete && splash.naturalWidth > 0) {
+      state.ctx.drawImage(splash, 0, 0, state.canvas.width, state.canvas.height);
+    } else {
+      state.ctx.fillStyle = "#111";
+      state.ctx.fillRect(0, 0, state.canvas.width, state.canvas.height);
+    }
+  }
+
   function drawBanners() {
     const { ctx, images, canvas } = state;
     if (state.showBonusBanner) ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
@@ -135,7 +141,14 @@
   }
 
   function drawStartScreen() {
+    const timeElapsed = Date.now() - state.splashStartTime;
+    if (timeElapsed < state.splashDuration) {
+      drawSplashScreen();
+      return;
+    }
+
     clearCanvas();
+
     drawText("Mzansi Fuel Drop", state.canvas.width / 2, 80, 36, true);
     drawText("Catch golden drops to score points.", state.canvas.width / 2, 130, 20, true);
     drawText("Avoid missing drops. 10 misses = Game Over.", state.canvas.width / 2, 160, 18, true);
