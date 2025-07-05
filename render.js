@@ -10,13 +10,13 @@
   }
 
   function clearCanvas() {
-    const { ctx, canvas, bonusActive, isMobile, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bonusActive ? "#1c63ff" : "#111";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw background in play area only
-    if (isMobile && images.bg_mobile.complete) {
+  const { ctx, canvas, bonusActive, isMobile, PLAY_AREA_LEFT, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT, images } = state;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = bonusActive ? "#1c63ff" : "#111";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw background in play area only
+  if (isMobile && images.bg_mobile.complete) {
     ctx.drawImage(images.bg_mobile, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
   } else if (!isMobile && images.bg_desktop.complete) {
     ctx.drawImage(images.bg_desktop, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
@@ -32,6 +32,8 @@
     ctx.lineWidth = 4;
     ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
   }
+}
+
 
     if (!isMobile) {
       ctx.strokeStyle = bonusActive ? "#333" : "#666";
