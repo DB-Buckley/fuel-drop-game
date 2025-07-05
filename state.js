@@ -67,22 +67,5 @@ const state = {
   playerName: "",
   leaderboard: JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]"),
 
-  // Static background images for play area
-  images: {
-    bg_desktop: null,
-    bg_mobile: null,
-    // other images loaded elsewhere
-  },
-};
-
-// Load background images into state.images
-const bgDesktopImg = new Image();
-bgDesktopImg.src = 'images/bg_desktop.png'; // <-- Change path as needed
-state.images.bg_desktop = bgDesktopImg;
-
-const bgMobileImg = new Image();
-bgMobileImg.src = 'images/bg_mobile.png';  // <-- Change path as needed
-state.images.bg_mobile = bgMobileImg;
-
 // Expose state globally
 window.state = state;
