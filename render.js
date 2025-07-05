@@ -151,7 +151,7 @@
       if (mobileControls) mobileControls.style.display = "none";
     } else {
       // Instructions (moved down)
-      drawText("Catch golden drops to score points. Don't Miss", canvas.width / 2, 160, 18, true);
+      drawText("Catch golden drops to score points. Don't Miss", canvas.width / 2, 260, 18, true);
      
 
       if (mobileControls) {
