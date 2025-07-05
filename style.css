@@ -9,13 +9,10 @@ html, body {
   max-height: 100dvh;
   overscroll-behavior: none;
   font-family: sans-serif;
-
-  /* Account for iOS safe areas */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Full-size canvas */
 canvas {
   display: block;
   width: 100%;
@@ -25,7 +22,7 @@ canvas {
 /* Mobile controls container */
 #mobile-controls {
   position: absolute;
-  top: 45%; /* moved up from 65% */
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
@@ -38,14 +35,12 @@ canvas {
   max-width: 320px;
 }
 
-/* Hide on desktop */
 @media (min-width: 768px) {
   #mobile-controls {
     display: none;
   }
 }
 
-/* Show on mobile */
 @media (max-width: 767px) {
   #mobile-controls {
     display: flex;
@@ -86,12 +81,10 @@ canvas {
   background-color: #1551cc;
 }
 
-/* Utility class to hide elements */
 .hidden {
   display: none !important;
 }
 
-/* Optional: Overlay if you want to animate the darkening */
 .dark-overlay {
   background-color: rgba(0, 0, 0, 0.3);
   position: absolute;
@@ -102,48 +95,38 @@ canvas {
   z-index: 5;
 }
 
-/* New leaderboard background box style */
+/* Leaderboard box common */
 .leaderboard-box {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 10px;
-  padding: 12px 20px;
-  box-sizing: border-box;
   box-shadow: 0 4px 10px rgba(0,0,0,0.7);
   color: white;
   font-family: Arial, sans-serif;
-  pointer-events: none; /* avoid interfering with interactions */
-  user-select: none;
-  z-index: 9;
-}
-
-/* Desktop leaderboard positioning */
-@media (min-width: 768px) {
-  .leaderboard-box.desktop {
-  position: absolute;
-  top: 280px; /* slightly above first text line (290) */
-  left: calc(50% + 180px - 20px); /* offsetX minus some padding */
-  width: 220px; /* enough width for the text */
-  height: 270px; /* covers all 10 entries plus header */
-  padding: 12px 16px;
-  background-color: rgba(0, 0, 0, 0.6);
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.7);
-  color: white;
   pointer-events: none;
   user-select: none;
   z-index: 9;
+  display: none;
 }
 
+/* Desktop leaderboard box */
+@media (min-width: 768px) {
+  .leaderboard-box.desktop {
+    top: 280px;
+    width: 260px;
+    height: 260px;
+    padding: 12px 16px;
+  }
 }
 
-/* Mobile leaderboard positioning */
+/* Mobile leaderboard box */
 @media (max-width: 767px) {
   .leaderboard-box.mobile {
-    bottom: 280px; /* matches JS positioning */
+    bottom: 280px;
     left: 50%;
     transform: translateX(-50%);
     width: 260px;
     height: 240px;
+    padding: 12px 16px;
   }
 }
