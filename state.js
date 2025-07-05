@@ -10,6 +10,7 @@ canvas.height = window.innerHeight;
 
 const PLAY_AREA_WIDTH = isMobile ? canvas.width * 0.95 : canvas.width * 0.6;
 const PLAY_AREA_LEFT = (canvas.width - PLAY_AREA_WIDTH) / 2;
+const PLAY_AREA_HEIGHT = canvas.height;  // Full canvas height for play area vertical size
 
 const state = {
   canvas,
@@ -18,6 +19,7 @@ const state = {
 
   PLAY_AREA_WIDTH,
   PLAY_AREA_LEFT,
+  PLAY_AREA_HEIGHT,
 
   car: {
     x: PLAY_AREA_LEFT + PLAY_AREA_WIDTH / 2 - 30,
@@ -64,6 +66,13 @@ const state = {
 
   playerName: "",
   leaderboard: JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]"),
+
+  // Static background images for play area
+  images: {
+    bg_desktop: null,
+    bg_mobile: null,
+    // other images loaded elsewhere
+  },
 };
 
-window.state = state; // Expose globally
+window.state = state;
