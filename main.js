@@ -32,7 +32,7 @@
     s.showFuelPriceBanner = false;
     s.showFuelDecreaseBanner = false;
 
-    toggleMobileControls(); // Hide controls on start
+    toggleMobileControls();
   }
 
   function resetGame() {
@@ -41,15 +41,15 @@
     s.paused = false;
     s.playerName = "";
 
-    toggleMobileControls(); // Show controls on reset/start screen
+    toggleMobileControls();
   }
 
-  function mainLoop(timestamp = 0) {
+  function mainLoop() {
     if (!s.gameStarted) {
       window.renderStartScreen();
     } else if (s.gameOver) {
       window.renderGameOver();
-      toggleMobileControls(); // Show controls if game over
+      toggleMobileControls();
     } else if (s.paused) {
       window.render();
       const ctx = s.ctx;
@@ -81,23 +81,38 @@
   window.resetGame = resetGame;
   window.mainLoop = mainLoop;
 
-  // Load images then reset and start main loop
+  // Load images from state.images
   function loadAllImages(callback) {
+    const images = s.images;
     let loadedCount = 0;
-    const totalImages = Object.keys(window.images).length;
+    const totalImages = Object.keys(images).length;
 
-    for (const key in window.images) {
-      window.images[key].onload = () => {
+    for (const key in images) {
+      if (!images[key]) {
+        loadedCount++;
+        continue;
+      }
+
+      images[key].onload = () => {
         loadedCount++;
         if (loadedCount === totalImages) callback();
       };
-      window.images[key].onerror = () => {
+
+      images[key].onerror = () => {
         console.warn(`Failed to load image: ${key}`);
         loadedCount++;
         if (loadedCount === totalImages) callback();
       };
     }
   }
+
+  // Optional loading screen
+  s.ctx.fillStyle = "#000";
+  s.ctx.fillRect(0, 0, s.canvas.width, s.canvas.height);
+  s.ctx.fillStyle = "#fff";
+  s.ctx.font = "32px Arial";
+  s.ctx.textAlign = "center";
+  s.ctx.fillText("Loading...", s.canvas.width / 2, s.canvas.height / 2);
 
   loadAllImages(() => {
     resetGame();
