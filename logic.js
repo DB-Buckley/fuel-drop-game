@@ -19,7 +19,7 @@
       radius: 10,
       caught: false,
       bonus: false,
-      slowDown: false
+      slowDown: false,
     };
 
     if (!state.bonusActive && !state.lastDropBonus && rand < 0.1) {
@@ -77,12 +77,13 @@
       }
     }
 
+    // Remove caught drops
     state.drops = state.drops.filter(drop => !drop.caught);
-
   };
 
   function updateLeaderboard() {
-    state.leaderboard.push({ name: state.playerName || "Anon", score: state.score });
+    const playerName = (state.playerName || "Anon").trim().slice(0, 12);
+    state.leaderboard.push({ name: playerName, score: state.score });
     state.leaderboard.sort((a, b) => b.score - a.score);
     state.leaderboard = state.leaderboard.slice(0, 10);
     localStorage.setItem("mzansi_leaderboard", JSON.stringify(state.leaderboard));
