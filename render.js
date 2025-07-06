@@ -135,19 +135,18 @@
     if (state.showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
   }
 
-  function setupMobileInput() {
-    const input = document.getElementById("mobile-player-name");
-    if (input) {
-      input.setAttribute("autocomplete", "off");
-      input.setAttribute("autocorrect", "off");
-      input.setAttribute("autocapitalize", "off");
-      input.setAttribute("spellcheck", "false");
-      input.value = state.playerName;
-      input.addEventListener("input", (e) => {
-        state.playerName = e.target.value.trim().slice(0, 12);
-      });
-    }
+function setupMobileInput() {
+  const input = document.getElementById("mobile-player-name");
+  if (input) {
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("autocorrect", "off");
+    input.setAttribute("autocapitalize", "off");
+    input.setAttribute("spellcheck", "false");
+
+    // DO NOT assign input event listener here to avoid duplication
+    // state.playerName will be set only on "Start" button press
   }
+}
 
   function drawStartScreen() {
     const { ctx, canvas, isMobile, images } = state;
