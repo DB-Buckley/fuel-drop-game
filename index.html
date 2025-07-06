@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Mzansi Fuel Drop</title>
 
-  <!-- Optional: Better look on mobile address bar -->
+  <!-- Mobile color theme -->
   <meta name="theme-color" content="#1c63ff" />
+
+  <!-- Optional: Manifest for PWA (uncomment if using) -->
+  <!-- <link rel="manifest" href="manifest.json" /> -->
 
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="data:," />
@@ -23,21 +26,30 @@
       placeholder="Enter your name"
       autocomplete="off"
       autocorrect="off"
-      autocapitalize="words"
+      autocapitalize="off"
       spellcheck="false"
     />
     <button id="mobile-start-btn">Start Game</button>
   </div>
 
-  <!-- Leaderboard background box -->
+  <!-- Leaderboard box -->
   <div id="leaderboard-box" class="leaderboard-box"></div>
 
-  <!-- JavaScript modules -->
+  <!-- Scripts (loaded after DOM elements) -->
   <script src="state.js"></script>
   <script src="assets.js"></script>
   <script src="main.js"></script>
   <script src="inputs.js"></script>
   <script src="render.js"></script>
   <script src="logic.js"></script>
+
+  <!-- Optional: Service Worker (uncomment if using PWA) -->
+  <!--
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(console.error);
+    }
+  </script>
+  -->
 </body>
 </html>
