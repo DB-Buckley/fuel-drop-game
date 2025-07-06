@@ -32,13 +32,11 @@
   window.moveLeft = moveLeft;
   window.moveRight = moveRight;
 
-  // --- KEYBOARD INPUT ---
+  // --- KEYBOARD INPUT (desktop only) ---
   document.addEventListener("keydown", (e) => {
-    if (!s.gameStarted && !s.gameOver && /^[a-zA-Z0-9 ]$/.test(e.key) && s.playerName.length < 12) {
-      s.playerName += e.key;
-    } else if (!s.gameStarted && !s.gameOver && e.key === "Backspace") {
-      s.playerName = s.playerName.slice(0, -1);
-    } else if (!s.gameStarted && !s.gameOver && e.key === "Enter" && s.playerName.length > 0) {
+    const isTyping = document.activeElement === nameInput;
+
+    if (!s.gameStarted && !s.gameOver && e.key === "Enter" && s.playerName.length > 0 && !isTyping) {
       window.startGame();
       mobileControls?.classList.add("hidden");
     }
@@ -149,7 +147,7 @@
 
     if (startBtn && nameInput) {
       startBtn.addEventListener("click", () => {
-        const name = nameInput.value.trim();
+        const name = nameInput.value.trim().slice(0, 12);
         if (name.length === 0) {
           alert("Please enter your name to start!");
           return;
@@ -158,8 +156,6 @@
         window.startGame();
         mobileControls?.classList.add("hidden");
       });
-
-      // ✅ Removed duplicate input listener to avoid ghost typing
     }
   });
 
