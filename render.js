@@ -10,11 +10,29 @@
   }
 
   function clearCanvas() {
-    const { ctx, canvas, bonusActive, isMobile, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
+    const {
+      ctx,
+      canvas,
+      bonusActive,
+      isMobile,
+      PLAY_AREA_LEFT,
+      PLAY_AREA_WIDTH,
+      PLAY_AREA_HEIGHT,
+      images,
+    } = state;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = bonusActive ? "#1c63ff" : "#111";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Background image
+    if (isMobile && images.bg_mobile?.complete) {
+      ctx.drawImage(images.bg_mobile, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    } else if (!isMobile && images.bg_desktop?.complete) {
+      ctx.drawImage(images.bg_desktop, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    }
+
+    // Border for desktop
     if (!isMobile) {
       ctx.strokeStyle = bonusActive ? "#333" : "#666";
       ctx.lineWidth = 4;
@@ -54,6 +72,7 @@
 
     drawText(isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause", canvas.width / 2, 90, 16, true, "#aaa");
 
+    // Legend
     if (isMobile) {
       const legends = [
         { img: state.images.fuel_gold, text: "+10" },
@@ -61,24 +80,24 @@
         { img: state.images.fuel_green, text: "Slow" },
       ];
       const totalWidth = legends.length * 64 + (legends.length - 1) * 20;
-      let startX = (state.canvas.width - totalWidth) / 2;
-      const legendY = state.canvas.height - 40;
+      let startX = (canvas.width - totalWidth) / 2;
+      const legendY = canvas.height - 40;
 
-      state.ctx.globalAlpha = 0.75;
+      ctx.globalAlpha = 0.75;
       legends.forEach(({ img, text }) => {
-        state.ctx.drawImage(img, startX, legendY - 24, 32, 32);
+        ctx.drawImage(img, startX, legendY - 24, 32, 32);
         drawText(text, startX + 16, legendY + 18, 14, true, "#fff");
         startX += 64;
       });
-      state.ctx.globalAlpha = 1;
+      ctx.globalAlpha = 1;
     } else {
       const legendX = 20;
-      let legendY = state.canvas.height - 130;
+      let legendY = canvas.height - 130;
       const imgSize = 24;
       const spacing = 8;
 
       function drawLegend(img, label) {
-        state.ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
+        ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
         drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
         legendY += imgSize + 10;
       }
@@ -109,10 +128,6 @@
     ctx.fillText(isMobile ? "×" : "Exit", btnX + btnW / 2, btnY + btnH / 2);
   }
 
-  function drawLogo() {
-    return;
-  }
-
   function drawBanners() {
     const { ctx, images, canvas } = state;
     if (state.showBonusBanner) ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
@@ -120,11 +135,24 @@
     if (state.showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
   }
 
+  function setupMobileInput() {
+    const input = document.getElementById("mobile-player-name");
+    if (input) {
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute("autocorrect", "off");
+      input.setAttribute("autocapitalize", "off");
+      input.setAttribute("spellcheck", "false");
+      input.value = state.playerName;
+      input.addEventListener("input", (e) => {
+        state.playerName = e.target.value.trim().slice(0, 12);
+      });
+    }
+  }
+
   function drawStartScreen() {
     const { ctx, canvas, isMobile, images } = state;
     const splash = isMobile ? images.splash_mobile : images.splash_desktop;
     ctx.drawImage(splash, 0, 0, canvas.width, canvas.height);
-
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -144,9 +172,8 @@
 
       const box = document.getElementById("leaderboard-box");
       if (box) {
-        const boxX = offsetX - 10;
-        box.style.left = `${boxX}px`;
-        box.style.top = `280px`;
+        box.style.left = `${offsetX - 10}px`;
+        box.style.top = "280px";
         box.style.display = "block";
       }
 
@@ -161,13 +188,9 @@
         mobileControls.style.top = "45%";
         mobileControls.style.transform = "translate(-50%, -50%)";
         mobileControls.style.textAlign = "center";
-
-        const input = document.getElementById("mobile-player-name");
-        if (input) {
-          input.value = state.playerName;
-          input.addEventListener("touchstart", () => setTimeout(() => input.focus(), 100), { once: true });
-        }
       }
+
+      setupMobileInput();
 
       const lbX = canvas.width / 2 - 130;
       const lbY = canvas.height - 280;
