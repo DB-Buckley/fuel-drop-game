@@ -1,7 +1,7 @@
 (function () {
-  const canvas = window.state.canvas;
-  const car = window.state.car;
   const s = window.state;
+  const canvas = s.canvas;
+  const car = s.car;
 
   let isDragging = false;
   let lastTap = 0;
@@ -87,14 +87,11 @@
 
   // --- TOUCH INPUT ---
   canvas.addEventListener("touchstart", (e) => {
-    // 🛑 Ignore touches on input or its container
     if (e.target === nameInput || nameInput?.contains(e.target)) return;
 
     const now = Date.now();
-    if (now - lastTap < 300) {
-      if (s.gameStarted && !s.gameOver) {
-        s.paused = !s.paused;
-      }
+    if (now - lastTap < 300 && s.gameStarted && !s.gameOver) {
+      s.paused = !s.paused;
     }
     lastTap = now;
 
@@ -146,7 +143,7 @@
     }
   });
 
-  // --- MOBILE INPUT HANDLER ---
+  // --- MOBILE START BUTTON ---
   document.addEventListener("DOMContentLoaded", () => {
     const startBtn = document.getElementById("mobile-start-btn");
 
@@ -162,16 +159,18 @@
         mobileControls?.classList.add("hidden");
       });
 
-      nameInput.addEventListener("input", () => {
-        s.playerName = nameInput.value;
-      });
+      // ✅ Removed duplicate input listener to avoid ghost typing
     }
   });
 
-  // --- Exit Button ---
+  // --- Exit Button Hit Test ---
   function checkExitClick(x, y) {
-    const btn = s.exitButton;
-    if (!btn) return false;
-    return x >= btn.x && x <= btn.x + btn.width && y >= btn.y && y <= btn.y + btn.height;
+    const { isMobile, canvas } = s;
+    const btnW = isMobile ? 40 : 80;
+    const btnH = 32;
+    const btnX = canvas.width - btnW - 20;
+    const btnY = isMobile ? canvas.height - btnH - 20 : 20;
+
+    return x >= btnX && x <= btnX + btnW && y >= btnY && y <= btnY + btnH;
   }
 })();
