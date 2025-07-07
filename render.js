@@ -126,7 +126,7 @@
       ];
       const totalWidth = legends.length * 64 + (legends.length - 1) * 20;
       let startX = (canvas.width - totalWidth) / 2;
-      const legendY = canvas.height - 40;
+      const legendY = canvas.height - 30;
 
       ctx.globalAlpha = 0.75;
       legends.forEach(({ img, text }) => {
