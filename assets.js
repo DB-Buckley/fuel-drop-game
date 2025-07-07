@@ -12,7 +12,8 @@
     mzansiLogo: 'assets/mzansi_logo.png',
     splash_desktop: 'assets/splash_desktop.png',
     splash_mobile: 'assets/splash_mobile.png',
-
+    bg_desktop: 'assets/bg_desktop.jpg',    // ← Add your image
+    bg_mobile: 'assets/bg_mobile.jpg'       // ← Add your image
   };
 
   const images = {};
