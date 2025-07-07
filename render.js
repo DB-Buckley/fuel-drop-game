@@ -10,18 +10,18 @@
   }
 
   function drawParallaxLayer(image, scrollX, speed, y, height) {
-  const { ctx, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
-  scrollX -= speed;
-  if (scrollX <= -PLAY_AREA_WIDTH) scrollX = 0;
+    const { ctx, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
+    scrollX -= speed;
+    if (scrollX <= -PLAY_AREA_WIDTH) scrollX = 0;
 
-  const x1 = Math.floor(PLAY_AREA_LEFT + scrollX);
-  const x2 = Math.floor(x1 + PLAY_AREA_WIDTH) - 1; // overlap by 1px
+    const x1 = Math.floor(PLAY_AREA_LEFT + scrollX);
+    const x2 = Math.floor(x1 + PLAY_AREA_WIDTH) - 1; // overlap by 1px
 
-  ctx.drawImage(image, x1, y, PLAY_AREA_WIDTH, height);
-  ctx.drawImage(image, x2, y, PLAY_AREA_WIDTH, height);
+    ctx.drawImage(image, x1, y, PLAY_AREA_WIDTH, height);
+    ctx.drawImage(image, x2, y, PLAY_AREA_WIDTH, height);
 
-  return scrollX;
-}
+    return scrollX;
+  }
 
   function clearCanvas() {
     const {
@@ -264,6 +264,14 @@
     drawTopUI();
     drawBanners();
     drawExitButton();
+
+    // Draw nighttime filter overlay if active
+    if (state.nightModeActive) {
+      const filterImg = state.isMobile ? state.images.nt_filter_mobile : state.images.nt_filter_desktop;
+      if (filterImg?.complete) {
+        state.ctx.drawImage(filterImg, 0, 0, state.canvas.width, state.canvas.height);
+      }
+    }
   };
 
   window.renderStartScreen = drawStartScreen;
