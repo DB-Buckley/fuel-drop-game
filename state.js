@@ -21,8 +21,8 @@ const state = {
 
   // ✅ Dynamic car size based on device
   car: (() => {
-    const carWidth = isMobile ? PLAY_AREA_WIDTH * 0.25 : PLAY_AREA_WIDTH * 0.20;
-    const carHeight = isMobile ? PLAY_AREA_WIDTH * 0.12 : PLAY_AREA_WIDTH * 0.10;
+    const carWidth = isMobile ? PLAY_AREA_WIDTH * 0.34 : PLAY_AREA_WIDTH * 0.20;
+    const carHeight = isMobile ? PLAY_AREA_WIDTH * 0.17 : PLAY_AREA_WIDTH * 0.10;
     const x = PLAY_AREA_LEFT + (PLAY_AREA_WIDTH - carWidth) / 2;
     const y = canvas.height - carHeight - 20;
 
