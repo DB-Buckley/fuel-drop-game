@@ -19,7 +19,7 @@ const state = {
   PLAY_AREA_LEFT,
   PLAY_AREA_HEIGHT,
 
-  // ✅ Dynamic car size based on device
+  // Dynamic car size based on device
   car: (() => {
     const carWidth = isMobile ? PLAY_AREA_WIDTH * 0.34 : PLAY_AREA_WIDTH * 0.20;
     const carHeight = isMobile ? PLAY_AREA_WIDTH * 0.17 : PLAY_AREA_WIDTH * 0.10;
@@ -74,21 +74,21 @@ const state = {
   playerName: "",
   leaderboard: JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]"),
 
-  // ✅ Parallax Scroll Tracking
+  // Parallax Scroll Tracking
   bgScroll: {
     layer1X: 0,
     layer2X: 0,
     layer3X: 0,
   },
 
-  // ✅ Scroll Speeds (customizable)
+  // Scroll Speeds (customizable)
   bgSpeed: {
     layer1: 0.8,   // front (road)
     layer2: 0.4,   // middle (trees)
-    layer3: 0.15    // back (mountains)
+    layer3: 0.15   // back (mountains)
   },
 
-  // ✅ Preloaded images
+  // Preloaded images
   images: {
     car: null,
     fuel_gold: null,
@@ -110,8 +110,15 @@ const state = {
     gbg_mobile_layer1: null,
     gbg_mobile_layer2: null,
     gbg_mobile_layer3: null,
-  }
+
+    // Nighttime filters
+    nt_filter_desktop: null,
+    nt_filter_mobile: null,
+  },
+
+  // Night mode state for day/night cycle
+  nightModeActive: false,
+  nightCycleTimer: 0, // milliseconds counter
 };
 
-// Expose globally
 window.state = state;
