@@ -36,27 +36,32 @@
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    ctx.clip();
+
     const prefix = isMobile ? 'gbg_mobile_layer' : 'gbg_desktop_layer';
 
-    // Layer 3: Mountains/Sky
     const layer3 = images[`${prefix}3`];
     if (layer3?.complete) {
       bgScroll.layer3X = drawParallaxLayer(layer3, bgScroll.layer3X, bgSpeed.layer3, 0, PLAY_AREA_HEIGHT);
     }
 
-    // Layer 2: Trees
     const layer2 = images[`${prefix}2`];
     if (layer2?.complete) {
-      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, 0, PLAY_AREA_HEIGHT);
+      const height2 = PLAY_AREA_HEIGHT * 0.9;
+      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - height2, height2);
     }
 
-    // Layer 1: Road
     const layer1 = images[`${prefix}1`];
     if (layer1?.complete) {
-      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, 0, PLAY_AREA_HEIGHT);
+      const height1 = PLAY_AREA_HEIGHT * 0.75;
+      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - height1, height1);
     }
 
-    // Optional overlay for contrast
+    ctx.restore();
+
     ctx.fillStyle = bonusActive ? "rgba(28,99,255,0.1)" : "rgba(0,0,0,0.05)";
     ctx.fillRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
 
