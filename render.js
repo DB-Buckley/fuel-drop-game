@@ -34,7 +34,8 @@
       images,
       bgScroll,
       bgSpeed,
-      bonusActive
+      bonusActive,
+      nightModeActive,
     } = state;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -54,25 +55,22 @@
 
     const layer3 = images[`${prefix}3`];
     if (layer3?.complete) {
-      const height = layerHeights.layer3;
-      bgScroll.layer3X = drawParallaxLayer(layer3, bgScroll.layer3X, bgSpeed.layer3, PLAY_AREA_HEIGHT - height, height);
+      bgScroll.layer3X = drawParallaxLayer(layer3, bgScroll.layer3X, bgSpeed.layer3, PLAY_AREA_HEIGHT - layerHeights.layer3, layerHeights.layer3);
     }
 
     const layer2 = images[`${prefix}2`];
     if (layer2?.complete) {
-      const height = layerHeights.layer2;
-      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - height, height);
+      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - layerHeights.layer2, layerHeights.layer2);
     }
 
     const layer1 = images[`${prefix}1`];
     if (layer1?.complete) {
-      const height = layerHeights.layer1;
-      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - height, height);
+      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - layerHeights.layer1, layerHeights.layer1);
     }
 
-    // ✨ Nighttime overlay within game area only
-    if (state.nightModeActive) {
-      const filterImg = state.isMobile ? state.images.nt_filter_mobile : state.images.nt_filter_desktop;
+    // 🌙 Nighttime overlay (60% opacity, color-burn)
+    if (nightModeActive) {
+      const filterImg = isMobile ? images.nt_filter_mobile : images.nt_filter_desktop;
       if (filterImg?.complete) {
         ctx.globalAlpha = 0.6;
         ctx.globalCompositeOperation = "color-burn";
@@ -106,13 +104,15 @@
     if (drop.bonus) img = state.images.fuel_bonus;
     else if (drop.slowDown) img = state.images.fuel_green;
 
-    state.ctx.drawImage(
-      img,
-      drop.x - drop.radius,
-      drop.y - drop.radius,
-      drop.radius * 2,
-      drop.radius * 2
-    );
+    if (img?.complete) {
+      state.ctx.drawImage(
+        img,
+        drop.x - drop.radius,
+        drop.y - drop.radius,
+        drop.radius * 2,
+        drop.radius * 2
+      );
+    }
   }
 
   function drawTopUI() {
@@ -266,7 +266,6 @@
     drawText(`Final Score: ${state.score}`, state.canvas.width / 2, state.canvas.height / 2, 24, true);
     drawText(`High Score: ${state.highScore}`, state.canvas.width / 2, state.canvas.height / 2 + 30, 24, true);
     drawText("Tap or press Enter to Retry", state.canvas.width / 2, state.canvas.height / 2 + 70, 24, true);
-
     const mobileControls = document.getElementById("mobile-controls");
     if (mobileControls) mobileControls.style.display = "none";
   }
