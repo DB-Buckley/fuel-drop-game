@@ -23,6 +23,10 @@
     gbg_mobile_layer1: 'assets/games_screen/gbg_mobile_layer1.png',
     gbg_mobile_layer2: 'assets/games_screen/gbg_mobile_layer2.png',
     gbg_mobile_layer3: 'assets/games_screen/gbg_mobile_layer3.png',
+
+    // 🌙 Nighttime filters
+    nt_filter_desktop: 'assets/games_screen/nt_filter_desktop.png',
+    nt_filter_mobile: 'assets/games_screen/nt_filter_mobile.png',
   };
 
   const images = {};
