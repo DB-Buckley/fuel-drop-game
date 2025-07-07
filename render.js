@@ -50,7 +50,7 @@
 
     const layer2 = images[`${prefix}2`];
     if (layer2?.complete) {
-      const height2 = PLAY_AREA_HEIGHT * 0.9;
+      const height2 = PLAY_AREA_HEIGHT * 0.7;
       bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - height2, height2);
     }
 
