@@ -66,6 +66,11 @@
       const deltaTime = now - (s.lastFrameTime || now);
       s.lastFrameTime = now;
 
+      if (now - s.lastSpawn > s.spawnInterval) {
+        window.spawnDrop();
+        s.lastSpawn = now;
+      }
+
       window.update(deltaTime);
       window.render();
     }
@@ -108,7 +113,7 @@
 
   loadAllImages(() => {
     resetGame();
-    requestAnimationFrame(mainLoop);  // ✅ Now mainLoop is in scope
+    requestAnimationFrame(mainLoop);
   });
 
   // Expose globally
