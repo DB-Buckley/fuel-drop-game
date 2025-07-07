@@ -8,7 +8,17 @@
   window.spawnDrop = function () {
     if (state.gameOver) return;
 
+    // Uncomment to debug spawning:
+    // console.log("Spawning a drop");
+
     let newY = -20;
+
+    // Initialize lastDropY if undefined
+    if (typeof state.lastDropY === "undefined") {
+      state.lastDropY = newY - 50; // ensure spacing first time
+    }
+
+    // Prevent drops too close vertically
     if (Math.abs(newY - state.lastDropY) < 30) newY -= 30;
     state.lastDropY = newY;
 
@@ -25,7 +35,7 @@
     if (!state.bonusActive && !state.lastDropBonus && rand < 0.1) {
       drop.bonus = true;
       state.lastDropBonus = true;
-    } else if (!state.lastDropGreen && state.fuelIncreases >= 3 && rand >= 0.1 && rand < 0.20) {
+    } else if (!state.lastDropGreen && state.fuelIncreases >= 3 && rand >= 0.1 && rand < 0.2) {
       drop.slowDown = true;
       state.lastDropGreen = true;
     } else {
@@ -78,7 +88,7 @@
     }
 
     // Remove caught drops
-    state.drops = state.drops.filter(drop => !drop.caught);
+    state.drops = state.drops.filter((drop) => !drop.caught);
   };
 
   function updateLeaderboard() {
@@ -109,8 +119,7 @@
     }
   };
 
-  // Day/Night cycle logic
-  window.updateDayNightCycle = function(deltaTime) {
+  window.updateDayNightCycle = function (deltaTime) {
     if (typeof state.nightCycleTimer === "undefined") {
       state.nightCycleTimer = 0;
       state.nightModeActive = false;
@@ -118,23 +127,35 @@
 
     state.nightCycleTimer += deltaTime;
 
-    // Reset timer every 90 seconds
     if (state.nightCycleTimer >= 90000) {
       state.nightCycleTimer = 0;
     }
 
-    // Night active during second 45 seconds of cycle
     state.nightModeActive = state.nightCycleTimer >= 45000;
   };
 
-  // Main update function to be called every frame with deltaTime (ms)
-  window.update = function(deltaTime) {
-    if(state.gameOver) return;
+  // Main update function called every frame with deltaTime (ms)
+  window.update = function (deltaTime) {
+    if (state.gameOver) return;
+
+    // Fix deltaTime default to 16ms if missing or zero
+    deltaTime = deltaTime || 16;
+
+    const now = Date.now();
+
+    // Setup lastSpawn if missing (to avoid first spawn delay)
+    if (!state.lastSpawn) {
+      state.lastSpawn = now;
+    }
+
+    if (now - state.lastSpawn > state.spawnInterval) {
+      window.spawnDrop();
+      state.lastSpawn = now;
+    }
 
     window.updateDrops(deltaTime);
     window.updateBonus(deltaTime);
     window.updateDifficulty();
     window.updateDayNightCycle(deltaTime);
   };
-
 })();
