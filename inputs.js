@@ -32,15 +32,31 @@
   window.moveLeft = moveLeft;
   window.moveRight = moveRight;
 
-  // --- KEYBOARD INPUT (desktop only) ---
+  // --- KEYBOARD INPUT (Desktop) ---
   document.addEventListener("keydown", (e) => {
     const isTyping = document.activeElement === nameInput;
+    const isMobile = s.isMobile;
 
-    if (!s.gameStarted && !s.gameOver && e.key === "Enter" && s.playerName.length > 0 && !isTyping) {
-      window.startGame();
-      mobileControls?.classList.add("hidden");
+    // === Desktop name input logic ===
+    if (!s.gameStarted && !s.gameOver && !isMobile && !isTyping) {
+      if (/^[a-zA-Z0-9 ]$/.test(e.key) && s.playerName.length < 12) {
+        s.playerName += e.key;
+        return;
+      }
+
+      if (e.key === "Backspace") {
+        s.playerName = s.playerName.slice(0, -1);
+        return;
+      }
+
+      if (e.key === "Enter" && s.playerName.length > 0) {
+        window.startGame();
+        mobileControls?.classList.add("hidden");
+        return;
+      }
     }
 
+    // === Game controls (both platforms) ===
     if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
     if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 
