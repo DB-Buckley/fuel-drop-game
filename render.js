@@ -43,21 +43,28 @@
 
     const prefix = isMobile ? 'gbg_mobile_layer' : 'gbg_desktop_layer';
 
+    const layerHeights = {
+      layer3: isMobile ? PLAY_AREA_HEIGHT * 0.9 : PLAY_AREA_HEIGHT * 1.0,
+      layer2: isMobile ? PLAY_AREA_HEIGHT * 0.4 : PLAY_AREA_HEIGHT * 0.2,
+      layer1: isMobile ? PLAY_AREA_HEIGHT * 0.3 : PLAY_AREA_HEIGHT * 0.1
+    };
+
     const layer3 = images[`${prefix}3`];
     if (layer3?.complete) {
-      bgScroll.layer3X = drawParallaxLayer(layer3, bgScroll.layer3X, bgSpeed.layer3, 0, PLAY_AREA_HEIGHT);
+      const height = layerHeights.layer3;
+      bgScroll.layer3X = drawParallaxLayer(layer3, bgScroll.layer3X, bgSpeed.layer3, PLAY_AREA_HEIGHT - height, height);
     }
 
     const layer2 = images[`${prefix}2`];
     if (layer2?.complete) {
-      const height2 = PLAY_AREA_HEIGHT * 0.4;
-      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - height2, height2);
+      const height = layerHeights.layer2;
+      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - height, height);
     }
 
     const layer1 = images[`${prefix}1`];
     if (layer1?.complete) {
-      const height1 = PLAY_AREA_HEIGHT * 0.2;
-      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - height1, height1);
+      const height = layerHeights.layer1;
+      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - height, height);
     }
 
     ctx.restore();
