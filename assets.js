@@ -15,14 +15,14 @@
     splash_mobile: 'assets/splash_mobile.png',
 
     // 🌄 Parallax background layers – desktop
-    gbg_desktop_layer1: 'assets/game_screen/gbg_desktop_layer1.png', // road (front)
-    gbg_desktop_layer2: 'assets/game_screen/gbg_desktop_layer2.png', // trees (middle)
-    gbg_desktop_layer3: 'assets/game_screen/gbg_desktop_layer3.png', // mountains (back)
+    gbg_desktop_layer1: 'assets/games_screen/gbg_desktop_layer1.png', // road (front)
+    gbg_desktop_layer2: 'assets/games_screen/gbg_desktop_layer2.png', // trees (middle)
+    gbg_desktop_layer3: 'assets/games_screen/gbg_desktop_layer3.png', // mountains (back)
 
     // 📱 Parallax background layers – mobile
-    gbg_mobile_layer1: 'assets/game_screen/gbg_mobile_layer1.png',
-    gbg_mobile_layer2: 'assets/game_screen/gbg_mobile_layer2.png',
-    gbg_mobile_layer3: 'assets/game_screen/gbg_mobile_layer3.png',
+    gbg_mobile_layer1: 'assets/games_screen/gbg_mobile_layer1.png',
+    gbg_mobile_layer2: 'assets/games_screen/gbg_mobile_layer2.png',
+    gbg_mobile_layer3: 'assets/games_screen/gbg_mobile_layer3.png',
   };
 
   const images = {};
