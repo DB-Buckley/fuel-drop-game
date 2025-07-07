@@ -85,7 +85,7 @@ const state = {
   bgSpeed: {
     layer1: 0.8,   // front (road)
     layer2: 0.4,   // middle (trees)
-    layer3: 0.1    // back (mountains)
+    layer3: 0.15    // back (mountains)
   },
 
   // ✅ Preloaded images
