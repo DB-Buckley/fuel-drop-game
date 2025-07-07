@@ -19,17 +19,25 @@ const state = {
   PLAY_AREA_LEFT,
   PLAY_AREA_HEIGHT,
 
-  car: {
-    x: PLAY_AREA_LEFT + (PLAY_AREA_WIDTH - (PLAY_AREA_WIDTH * 0.20)),
-    y: canvas.height - 100,
-    width: PLAY_AREA_WIDTH * 0.20,
-    height: PLAY_AREA_WIDTH * 0.10,
-    baseColor: "#F5A623",
-    bonusColor: "#00CFFF",
-    color: "#F5A623",
-    speed: 7,
-    dx: 0,
-  },
+  // ✅ Dynamic car size based on device
+  car: (() => {
+    const carWidth = isMobile ? PLAY_AREA_WIDTH * 0.25 : PLAY_AREA_WIDTH * 0.20;
+    const carHeight = isMobile ? PLAY_AREA_WIDTH * 0.12 : PLAY_AREA_WIDTH * 0.10;
+    const x = PLAY_AREA_LEFT + (PLAY_AREA_WIDTH - carWidth) / 2;
+    const y = canvas.height - carHeight - 20;
+
+    return {
+      x,
+      y,
+      width: carWidth,
+      height: carHeight,
+      baseColor: "#F5A623",
+      bonusColor: "#00CFFF",
+      color: "#F5A623",
+      speed: 7,
+      dx: 0,
+    };
+  })(),
 
   drops: [],
   dropSpeed: 2,
