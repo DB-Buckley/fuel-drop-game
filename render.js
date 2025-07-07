@@ -50,13 +50,13 @@
 
     const layer2 = images[`${prefix}2`];
     if (layer2?.complete) {
-      const height2 = PLAY_AREA_HEIGHT * 0.7;
+      const height2 = PLAY_AREA_HEIGHT * 0.4;
       bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - height2, height2);
     }
 
     const layer1 = images[`${prefix}1`];
     if (layer1?.complete) {
-      const height1 = PLAY_AREA_HEIGHT * 0.75;
+      const height1 = PLAY_AREA_HEIGHT * 0.2;
       bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - height1, height1);
     }
 
