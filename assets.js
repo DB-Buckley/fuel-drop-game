@@ -2,6 +2,7 @@
   const s = window.state;
 
   const imagePaths = {
+    // UI and game assets
     car: 'assets/car.png',
     fuel_gold: 'assets/fuel_gold.png',
     fuel_bonus: 'assets/fuel_bonus.png',
@@ -12,8 +13,16 @@
     mzansiLogo: 'assets/mzansi_logo.png',
     splash_desktop: 'assets/splash_desktop.png',
     splash_mobile: 'assets/splash_mobile.png',
-    bg_desktop: 'assets/bg_desktop.jpg',    // ← Add your image
-    bg_mobile: 'assets/bg_mobile.jpg'       // ← Add your image
+
+    // 🌄 Parallax background layers – desktop
+    gbg_desktop_layer1: 'assets/game_screen/gbg_desktop_layer1.png', // road (front)
+    gbg_desktop_layer2: 'assets/game_screen/gbg_desktop_layer2.png', // trees (middle)
+    gbg_desktop_layer3: 'assets/game_screen/gbg_desktop_layer3.png', // mountains (back)
+
+    // 📱 Parallax background layers – mobile
+    gbg_mobile_layer1: 'assets/game_screen/gbg_mobile_layer1.png',
+    gbg_mobile_layer2: 'assets/game_screen/gbg_mobile_layer2.png',
+    gbg_mobile_layer3: 'assets/game_screen/gbg_mobile_layer3.png',
   };
 
   const images = {};
