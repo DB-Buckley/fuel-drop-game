@@ -44,9 +44,9 @@
     const prefix = isMobile ? 'gbg_mobile_layer' : 'gbg_desktop_layer';
 
     const layerHeights = {
-      layer3: isMobile ? PLAY_AREA_HEIGHT * 0.9 : PLAY_AREA_HEIGHT * 1.0,
-      layer2: isMobile ? PLAY_AREA_HEIGHT * 0.4 : PLAY_AREA_HEIGHT * 0.2,
-      layer1: isMobile ? PLAY_AREA_HEIGHT * 0.3 : PLAY_AREA_HEIGHT * 0.1
+      layer3: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
+      layer2: isMobile ? PLAY_AREA_HEIGHT * 0.2 : PLAY_AREA_HEIGHT * 0.4,
+      layer1: isMobile ? PLAY_AREA_HEIGHT * 0.1 : PLAY_AREA_HEIGHT * 0.3,
     };
 
     const layer3 = images[`${prefix}3`];
