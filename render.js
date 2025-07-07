@@ -9,30 +9,57 @@
     ctx.fillText(text, x, y);
   }
 
+  function drawParallaxLayer(image, scrollX, speed, y, height) {
+    const { ctx, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
+    scrollX -= speed;
+    if (scrollX <= -PLAY_AREA_WIDTH) scrollX = 0;
+
+    ctx.drawImage(image, PLAY_AREA_LEFT + scrollX, y, PLAY_AREA_WIDTH, height);
+    ctx.drawImage(image, PLAY_AREA_LEFT + scrollX + PLAY_AREA_WIDTH, y, PLAY_AREA_WIDTH, height);
+
+    return scrollX;
+  }
+
   function clearCanvas() {
     const {
       ctx,
       canvas,
-      bonusActive,
-      isMobile,
       PLAY_AREA_LEFT,
       PLAY_AREA_WIDTH,
       PLAY_AREA_HEIGHT,
+      isMobile,
       images,
+      bgScroll,
+      bgSpeed,
+      bonusActive
     } = state;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Background image (optional fallback color)
-    const bgImage = isMobile ? images.bg_mobile : images.bg_desktop;
-    if (bgImage?.complete) {
-      ctx.drawImage(bgImage, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
-    } else {
-      ctx.fillStyle = bonusActive ? "#1c63ff" : "#111";
-      ctx.fillRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    const prefix = isMobile ? 'gbg_mobile_layer' : 'gbg_desktop_layer';
+
+    // Layer 3: Mountains/Sky
+    const layer3 = images[`${prefix}3`];
+    if (layer3?.complete) {
+      bgScroll.layer3X = drawParallaxLayer(layer3, bgScroll.layer3X, bgSpeed.layer3, 0, PLAY_AREA_HEIGHT);
     }
 
-    // Border (desktop only)
+    // Layer 2: Trees
+    const layer2 = images[`${prefix}2`];
+    if (layer2?.complete) {
+      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, 0, PLAY_AREA_HEIGHT);
+    }
+
+    // Layer 1: Road
+    const layer1 = images[`${prefix}1`];
+    if (layer1?.complete) {
+      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, 0, PLAY_AREA_HEIGHT);
+    }
+
+    // Optional overlay for contrast
+    ctx.fillStyle = bonusActive ? "rgba(28,99,255,0.1)" : "rgba(0,0,0,0.05)";
+    ctx.fillRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+
     if (!isMobile) {
       ctx.strokeStyle = bonusActive ? "#333" : "#666";
       ctx.lineWidth = 4;
@@ -50,7 +77,13 @@
     if (drop.bonus) img = state.images.fuel_bonus;
     else if (drop.slowDown) img = state.images.fuel_green;
 
-    state.ctx.drawImage(img, drop.x - drop.radius, drop.y - drop.radius, drop.radius * 2, drop.radius * 2);
+    state.ctx.drawImage(
+      img,
+      drop.x - drop.radius,
+      drop.y - drop.radius,
+      drop.radius * 2,
+      drop.radius * 2
+    );
   }
 
   function drawTopUI() {
@@ -60,7 +93,6 @@
 
     drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
 
-    // Lives / Missed drops
     for (let i = 0; i < maxMisses; i++) {
       ctx.beginPath();
       const x = canvas.width / 2 - 120 + i * 25;
@@ -74,47 +106,39 @@
 
     drawText(isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause", canvas.width / 2, 90, 16, true, "#aaa");
 
-    // Drop type legend
-    const ctxLegend = isMobile ? drawMobileLegend : drawDesktopLegend;
-    ctxLegend();
-  }
+    if (isMobile) {
+      const legends = [
+        { img: state.images.fuel_gold, text: "+10" },
+        { img: state.images.fuel_bonus, text: "3×" },
+        { img: state.images.fuel_green, text: "Slow" },
+      ];
+      const totalWidth = legends.length * 64 + (legends.length - 1) * 20;
+      let startX = (canvas.width - totalWidth) / 2;
+      const legendY = canvas.height - 40;
 
-  function drawMobileLegend() {
-    const { canvas, images } = state;
-    const legends = [
-      { img: images.fuel_gold, text: "+10" },
-      { img: images.fuel_bonus, text: "3×" },
-      { img: images.fuel_green, text: "Slow" },
-    ];
-    const totalWidth = legends.length * 64 + (legends.length - 1) * 20;
-    let startX = (canvas.width - totalWidth) / 2;
-    const legendY = canvas.height - 40;
+      ctx.globalAlpha = 0.75;
+      legends.forEach(({ img, text }) => {
+        ctx.drawImage(img, startX, legendY - 24, 32, 32);
+        drawText(text, startX + 16, legendY + 18, 14, true, "#fff");
+        startX += 64;
+      });
+      ctx.globalAlpha = 1;
+    } else {
+      const legendX = 20;
+      let legendY = canvas.height - 130;
+      const imgSize = 24;
+      const spacing = 8;
 
-    state.ctx.globalAlpha = 0.75;
-    legends.forEach(({ img, text }) => {
-      state.ctx.drawImage(img, startX, legendY - 24, 32, 32);
-      drawText(text, startX + 16, legendY + 18, 14, true, "#fff");
-      startX += 64;
-    });
-    state.ctx.globalAlpha = 1;
-  }
+      function drawLegend(img, label) {
+        ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
+        drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
+        legendY += imgSize + 10;
+      }
 
-  function drawDesktopLegend() {
-    const { ctx, canvas, images } = state;
-    const legendX = 20;
-    let legendY = canvas.height - 130;
-    const imgSize = 24;
-    const spacing = 8;
-
-    function drawLegend(img, label) {
-      ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
-      drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
-      legendY += imgSize + 10;
+      drawLegend(state.images.fuel_gold, "+10 Points");
+      drawLegend(state.images.fuel_bonus, "3× Points (8s)");
+      drawLegend(state.images.fuel_green, "Slows Drops");
     }
-
-    drawLegend(images.fuel_gold, "+10 Points");
-    drawLegend(images.fuel_bonus, "3× Points (8s)");
-    drawLegend(images.fuel_green, "Slows Drops");
   }
 
   function drawExitButton() {
@@ -169,7 +193,12 @@
         drawText(`${index + 1}. ${entry.name}: ${entry.score}`, offsetX, 350 + index * 24, 16);
       });
 
-      document.getElementById("leaderboard-box")?.style.setProperty("display", "block");
+      const box = document.getElementById("leaderboard-box");
+      if (box) {
+        box.style.left = `${offsetX - 10}px`;
+        box.style.top = "280px";
+        box.style.display = "block";
+      }
 
       if (mobileControls) mobileControls.style.display = "none";
     } else {
@@ -184,8 +213,6 @@
         mobileControls.style.textAlign = "center";
       }
 
-      setupMobileInput();
-
       const lbX = canvas.width / 2 - 130;
       const lbY = canvas.height - 280;
       const lbWidth = 260;
@@ -199,7 +226,8 @@
         drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, lbY + 70 + index * 20, 16, true);
       });
 
-      document.getElementById("leaderboard-box")?.style.setProperty("display", "none");
+      const box = document.getElementById("leaderboard-box");
+      if (box) box.style.display = "none";
     }
   }
 
@@ -210,17 +238,8 @@
     drawText(`High Score: ${state.highScore}`, state.canvas.width / 2, state.canvas.height / 2 + 30, 24, true);
     drawText("Tap or press Enter to Retry", state.canvas.width / 2, state.canvas.height / 2 + 70, 24, true);
 
-    document.getElementById("mobile-controls")?.style.setProperty("display", "none");
-  }
-
-  function setupMobileInput() {
-    const input = document.getElementById("mobile-player-name");
-    if (input) {
-      input.setAttribute("autocomplete", "off");
-      input.setAttribute("autocorrect", "off");
-      input.setAttribute("autocapitalize", "off");
-      input.setAttribute("spellcheck", "false");
-    }
+    const mobileControls = document.getElementById("mobile-controls");
+    if (mobileControls) mobileControls.style.display = "none";
   }
 
   window.render = function () {
