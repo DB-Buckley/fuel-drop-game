@@ -45,8 +45,8 @@
 
     const layerHeights = {
       layer3: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
-      layer2: isMobile ? PLAY_AREA_HEIGHT * 0.2 : PLAY_AREA_HEIGHT * 0.4,
-      layer1: isMobile ? PLAY_AREA_HEIGHT * 0.1 : PLAY_AREA_HEIGHT * 0.3,
+      layer2: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
+      layer1: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
     };
 
     const layer3 = images[`${prefix}3`];
