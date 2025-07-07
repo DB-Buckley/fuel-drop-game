@@ -82,7 +82,7 @@
   function loadAllImages(callback) {
     const imagePaths = {
       car: "assets/car.png",
-      car_night: "assets/car_night.png", // ✅ new car for night mode
+      car_night: "assets/car_night.png",
       fuel_gold: "assets/fuel_gold.png",
       fuel_bonus: "assets/fuel_bonus.png",
       fuel_green: "assets/fuel_green.png",
@@ -92,14 +92,14 @@
       mzansiLogo: "assets/mzansi_logo.png",
       splash_desktop: "assets/splash_desktop.png",
       splash_mobile: "assets/splash_mobile.png",
-      gbg_desktop_layer1: "assets/bg_desktop_layer1.png",
-      gbg_desktop_layer2: "assets/bg_desktop_layer2.png",
-      gbg_desktop_layer3: "assets/bg_desktop_layer3.png",
-      gbg_mobile_layer1: "assets/bg_mobile_layer1.png",
-      gbg_mobile_layer2: "assets/bg_mobile_layer2.png",
-      gbg_mobile_layer3: "assets/bg_mobile_layer3.png",
-      nt_filter_desktop: "assets/night_filter_desktop.png",
-      nt_filter_mobile: "assets/night_filter_mobile.png"
+      gbg_desktop_layer1: "assets/games_screen/gbg_desktop_layer1.png",
+      gbg_desktop_layer2: "assets/games_screen/gbg_desktop_layer2.png",
+      gbg_desktop_layer3: "assets/games_screen/gbg_desktop_layer3.png",
+      gbg_mobile_layer1: "assets/games_screen/gbg_mobile_layer1.png",
+      gbg_mobile_layer2: "assets/games_screen/gbg_mobile_layer2.png",
+      gbg_mobile_layer3: "assets/games_screen/gbg_mobile_layer3.png",
+      nt_filter_desktop: "assets/games_screen/nt_filter_desktop.png",
+      nt_filter_mobile: "assets/games_screen/nt_filter_mobile.png"
     };
 
     let loadedCount = 0;
@@ -141,4 +141,25 @@
   window.startGame = startGame;
   window.resetGame = resetGame;
   window.mainLoop = mainLoop;
+
+  // ✅ Automatically start game on click or Enter
+  s.canvas.addEventListener("click", () => {
+    if (!s.gameStarted && !s.gameOver) {
+      startGame();
+    } else if (s.gameOver) {
+      resetGame();
+      startGame();
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      if (!s.gameStarted && !s.gameOver) {
+        startGame();
+      } else if (s.gameOver) {
+        resetGame();
+        startGame();
+      }
+    }
+  });
 })();
