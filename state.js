@@ -90,6 +90,7 @@ const state = {
   // Preloaded images
   images: {
     car: null,
+    car_night: null, // ✅ Added night car image
     fuel_gold: null,
     fuel_bonus: null,
     fuel_green: null,
