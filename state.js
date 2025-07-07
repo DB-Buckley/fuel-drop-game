@@ -8,7 +8,7 @@ canvas.height = window.innerHeight;
 
 const PLAY_AREA_WIDTH = isMobile ? canvas.width * 0.95 : canvas.width * 0.6;
 const PLAY_AREA_LEFT = (canvas.width - PLAY_AREA_WIDTH) / 2;
-const PLAY_AREA_HEIGHT = canvas.height;  // Full canvas height for play area vertical size
+const PLAY_AREA_HEIGHT = canvas.height;
 
 const state = {
   canvas,
@@ -22,8 +22,8 @@ const state = {
   car: {
     x: PLAY_AREA_LEFT + (PLAY_AREA_WIDTH - (PLAY_AREA_WIDTH * 0.20)),
     y: canvas.height - 100,
-    width: PLAY_AREA_WIDTH * 0.15,     // 8% of play area width
-    height: PLAY_AREA_WIDTH * 0.07,    // 4% of play area width
+    width: PLAY_AREA_WIDTH * 0.15,
+    height: PLAY_AREA_WIDTH * 0.07,
     baseColor: "#F5A623",
     bonusColor: "#00CFFF",
     color: "#F5A623",
@@ -64,7 +64,45 @@ const state = {
 
   playerName: "",
   leaderboard: JSON.parse(localStorage.getItem("mzansi_leaderboard") || "[]"),
-};  // <--- This closing brace and semicolon was missing
 
-// Expose state globally
+  // ✅ Parallax Scroll Tracking
+  bgScroll: {
+    layer1X: 0,
+    layer2X: 0,
+    layer3X: 0,
+  },
+
+  // ✅ Scroll Speeds (customizable)
+  bgSpeed: {
+    layer1: 0.8,   // front (road)
+    layer2: 0.4,   // middle (trees)
+    layer3: 0.1    // back (mountains)
+  },
+
+  // ✅ Preloaded images
+  images: {
+    car: null,
+    fuel_gold: null,
+    fuel_bonus: null,
+    fuel_green: null,
+    banner_bonus: null,
+    banner_increase: null,
+    banner_decrease: null,
+    mzansiLogo: null,
+    splash_desktop: null,
+    splash_mobile: null,
+
+    // Parallax: Desktop
+    gbg_desktop_layer1: null,
+    gbg_desktop_layer2: null,
+    gbg_desktop_layer3: null,
+
+    // Parallax: Mobile
+    gbg_mobile_layer1: null,
+    gbg_mobile_layer2: null,
+    gbg_mobile_layer3: null,
+  }
+};
+
+// Expose globally
 window.state = state;
