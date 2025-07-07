@@ -22,17 +22,17 @@
     } = state;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bonusActive ? "#1c63ff" : "#111";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Background image
-    if (isMobile && images.bg_mobile?.complete) {
-      ctx.drawImage(images.bg_mobile, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
-    } else if (!isMobile && images.bg_desktop?.complete) {
-      ctx.drawImage(images.bg_desktop, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    // Background image (optional fallback color)
+    const bgImage = isMobile ? images.bg_mobile : images.bg_desktop;
+    if (bgImage?.complete) {
+      ctx.drawImage(bgImage, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    } else {
+      ctx.fillStyle = bonusActive ? "#1c63ff" : "#111";
+      ctx.fillRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
     }
 
-    // Border for desktop
+    // Border (desktop only)
     if (!isMobile) {
       ctx.strokeStyle = bonusActive ? "#333" : "#666";
       ctx.lineWidth = 4;
@@ -49,6 +49,7 @@
     let img = state.images.fuel_gold;
     if (drop.bonus) img = state.images.fuel_bonus;
     else if (drop.slowDown) img = state.images.fuel_green;
+
     state.ctx.drawImage(img, drop.x - drop.radius, drop.y - drop.radius, drop.radius * 2, drop.radius * 2);
   }
 
@@ -59,6 +60,7 @@
 
     drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
 
+    // Lives / Missed drops
     for (let i = 0; i < maxMisses; i++) {
       ctx.beginPath();
       const x = canvas.width / 2 - 120 + i * 25;
@@ -72,40 +74,47 @@
 
     drawText(isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause", canvas.width / 2, 90, 16, true, "#aaa");
 
-    // Legend
-    if (isMobile) {
-      const legends = [
-        { img: state.images.fuel_gold, text: "+10" },
-        { img: state.images.fuel_bonus, text: "3×" },
-        { img: state.images.fuel_green, text: "Slow" },
-      ];
-      const totalWidth = legends.length * 64 + (legends.length - 1) * 20;
-      let startX = (canvas.width - totalWidth) / 2;
-      const legendY = canvas.height - 40;
+    // Drop type legend
+    const ctxLegend = isMobile ? drawMobileLegend : drawDesktopLegend;
+    ctxLegend();
+  }
 
-      ctx.globalAlpha = 0.75;
-      legends.forEach(({ img, text }) => {
-        ctx.drawImage(img, startX, legendY - 24, 32, 32);
-        drawText(text, startX + 16, legendY + 18, 14, true, "#fff");
-        startX += 64;
-      });
-      ctx.globalAlpha = 1;
-    } else {
-      const legendX = 20;
-      let legendY = canvas.height - 130;
-      const imgSize = 24;
-      const spacing = 8;
+  function drawMobileLegend() {
+    const { canvas, images } = state;
+    const legends = [
+      { img: images.fuel_gold, text: "+10" },
+      { img: images.fuel_bonus, text: "3×" },
+      { img: images.fuel_green, text: "Slow" },
+    ];
+    const totalWidth = legends.length * 64 + (legends.length - 1) * 20;
+    let startX = (canvas.width - totalWidth) / 2;
+    const legendY = canvas.height - 40;
 
-      function drawLegend(img, label) {
-        ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
-        drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
-        legendY += imgSize + 10;
-      }
+    state.ctx.globalAlpha = 0.75;
+    legends.forEach(({ img, text }) => {
+      state.ctx.drawImage(img, startX, legendY - 24, 32, 32);
+      drawText(text, startX + 16, legendY + 18, 14, true, "#fff");
+      startX += 64;
+    });
+    state.ctx.globalAlpha = 1;
+  }
 
-      drawLegend(state.images.fuel_gold, "+10 Points");
-      drawLegend(state.images.fuel_bonus, "3× Points (8s)");
-      drawLegend(state.images.fuel_green, "Slows Drops");
+  function drawDesktopLegend() {
+    const { ctx, canvas, images } = state;
+    const legendX = 20;
+    let legendY = canvas.height - 130;
+    const imgSize = 24;
+    const spacing = 8;
+
+    function drawLegend(img, label) {
+      ctx.drawImage(img, legendX, legendY, imgSize, imgSize);
+      drawText(label, legendX + imgSize + spacing, legendY + imgSize - 6, 16, false, "#fff");
+      legendY += imgSize + 10;
     }
+
+    drawLegend(images.fuel_gold, "+10 Points");
+    drawLegend(images.fuel_bonus, "3× Points (8s)");
+    drawLegend(images.fuel_green, "Slows Drops");
   }
 
   function drawExitButton() {
@@ -135,23 +144,14 @@
     if (state.showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
   }
 
-function setupMobileInput() {
-  const input = document.getElementById("mobile-player-name");
-  if (input) {
-    input.setAttribute("autocomplete", "off");
-    input.setAttribute("autocorrect", "off");
-    input.setAttribute("autocapitalize", "off");
-    input.setAttribute("spellcheck", "false");
-
-    // DO NOT assign input event listener here to avoid duplication
-    // state.playerName will be set only on "Start" button press
-  }
-}
-
   function drawStartScreen() {
     const { ctx, canvas, isMobile, images } = state;
     const splash = isMobile ? images.splash_mobile : images.splash_desktop;
-    ctx.drawImage(splash, 0, 0, canvas.width, canvas.height);
+
+    if (splash?.complete) {
+      ctx.drawImage(splash, 0, 0, canvas.width, canvas.height);
+    }
+
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -169,12 +169,7 @@ function setupMobileInput() {
         drawText(`${index + 1}. ${entry.name}: ${entry.score}`, offsetX, 350 + index * 24, 16);
       });
 
-      const box = document.getElementById("leaderboard-box");
-      if (box) {
-        box.style.left = `${offsetX - 10}px`;
-        box.style.top = "280px";
-        box.style.display = "block";
-      }
+      document.getElementById("leaderboard-box")?.style.setProperty("display", "block");
 
       if (mobileControls) mobileControls.style.display = "none";
     } else {
@@ -204,8 +199,7 @@ function setupMobileInput() {
         drawText(`${index + 1}. ${entry.name}: ${entry.score}`, canvas.width / 2, lbY + 70 + index * 20, 16, true);
       });
 
-      const box = document.getElementById("leaderboard-box");
-      if (box) box.style.display = "none";
+      document.getElementById("leaderboard-box")?.style.setProperty("display", "none");
     }
   }
 
@@ -216,8 +210,17 @@ function setupMobileInput() {
     drawText(`High Score: ${state.highScore}`, state.canvas.width / 2, state.canvas.height / 2 + 30, 24, true);
     drawText("Tap or press Enter to Retry", state.canvas.width / 2, state.canvas.height / 2 + 70, 24, true);
 
-    const mobileControls = document.getElementById("mobile-controls");
-    if (mobileControls) mobileControls.style.display = "none";
+    document.getElementById("mobile-controls")?.style.setProperty("display", "none");
+  }
+
+  function setupMobileInput() {
+    const input = document.getElementById("mobile-player-name");
+    if (input) {
+      input.setAttribute("autocomplete", "off");
+      input.setAttribute("autocorrect", "off");
+      input.setAttribute("autocapitalize", "off");
+      input.setAttribute("spellcheck", "false");
+    }
   }
 
   window.render = function () {
