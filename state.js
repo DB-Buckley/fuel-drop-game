@@ -19,12 +19,11 @@ const state = {
   PLAY_AREA_LEFT,
   PLAY_AREA_HEIGHT,
 
-  // Dynamic car size based on device
   car: (() => {
     const carWidth = isMobile ? PLAY_AREA_WIDTH * 0.34 : PLAY_AREA_WIDTH * 0.20;
     const carHeight = isMobile ? PLAY_AREA_WIDTH * 0.17 : PLAY_AREA_WIDTH * 0.10;
     const x = PLAY_AREA_LEFT + (PLAY_AREA_WIDTH - carWidth) / 2;
-    const yOffset = isMobile ? 50 : 20; // Mobile: move up by 30px more
+    const yOffset = isMobile ? 50 : 20;
     const y = canvas.height - carHeight - yOffset;
 
     return {
@@ -81,11 +80,11 @@ const state = {
     layer3X: 0,
   },
 
-  // Scroll Speeds (customizable)
+  // Scroll Speeds
   bgSpeed: {
-    layer1: 0.8,   // front (road)
-    layer2: 0.4,   // middle (trees)
-    layer3: 0.15   // back (mountains)
+    layer1: 0.8,
+    layer2: 0.4,
+    layer3: 0.15
   },
 
   // Preloaded images
@@ -116,9 +115,10 @@ const state = {
     nt_filter_mobile: null,
   },
 
-  // Night mode state for day/night cycle
+  // 🌙 Night mode cycle (activates every 45s for 45s)
   nightModeActive: false,
-  nightCycleTimer: 0, // milliseconds counter
+  nightCycleTimer: 0,
+  nightCycleDuration: 90000, // Full loop: 45s day + 45s night
 };
 
 window.state = state;
