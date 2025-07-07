@@ -108,4 +108,33 @@
       state.nextDifficultyThreshold += 300;
     }
   };
+
+  // Day/Night cycle logic
+  window.updateDayNightCycle = function(deltaTime) {
+    if (typeof state.nightCycleTimer === "undefined") {
+      state.nightCycleTimer = 0;
+      state.nightModeActive = false;
+    }
+
+    state.nightCycleTimer += deltaTime;
+
+    // Reset timer every 90 seconds
+    if (state.nightCycleTimer >= 90000) {
+      state.nightCycleTimer = 0;
+    }
+
+    // Night active during second 45 seconds of cycle
+    state.nightModeActive = state.nightCycleTimer >= 45000;
+  };
+
+  // Main update function to be called every frame with deltaTime (ms)
+  window.update = function(deltaTime) {
+    if(state.gameOver) return;
+
+    window.updateDrops(deltaTime);
+    window.updateBonus(deltaTime);
+    window.updateDifficulty();
+    window.updateDayNightCycle(deltaTime);
+  };
+
 })();
