@@ -10,15 +10,18 @@
   }
 
   function drawParallaxLayer(image, scrollX, speed, y, height) {
-    const { ctx, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
-    scrollX -= speed;
-    if (scrollX <= -PLAY_AREA_WIDTH) scrollX = 0;
+  const { ctx, PLAY_AREA_LEFT, PLAY_AREA_WIDTH } = state;
+  scrollX -= speed;
+  if (scrollX <= -PLAY_AREA_WIDTH) scrollX = 0;
 
-    ctx.drawImage(image, PLAY_AREA_LEFT + scrollX, y, PLAY_AREA_WIDTH, height);
-    ctx.drawImage(image, PLAY_AREA_LEFT + scrollX + PLAY_AREA_WIDTH, y, PLAY_AREA_WIDTH, height);
+  const x1 = Math.floor(PLAY_AREA_LEFT + scrollX);
+  const x2 = Math.floor(x1 + PLAY_AREA_WIDTH) - 1; // overlap by 1px
 
-    return scrollX;
-  }
+  ctx.drawImage(image, x1, y, PLAY_AREA_WIDTH, height);
+  ctx.drawImage(image, x2, y, PLAY_AREA_WIDTH, height);
+
+  return scrollX;
+}
 
   function clearCanvas() {
     const {
@@ -45,7 +48,7 @@
 
     const layerHeights = {
       layer3: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
-      layer2: isMobile ? PLAY_AREA_HEIGHT * 1.1 : PLAY_AREA_HEIGHT * 1.0,
+      layer2: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
       layer1: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
     };
 
