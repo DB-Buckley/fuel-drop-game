@@ -34,7 +34,7 @@
       images,
       bgScroll,
       bgSpeed,
-      bonusActive
+      bonusActive,
     } = state;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -44,7 +44,7 @@
     ctx.rect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
     ctx.clip();
 
-    const prefix = isMobile ? 'gbg_mobile_layer' : 'gbg_desktop_layer';
+    const prefix = isMobile ? "gbg_mobile_layer" : "gbg_desktop_layer";
 
     const layerHeights = {
       layer3: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
@@ -55,19 +55,37 @@
     const layer3 = images[`${prefix}3`];
     if (layer3?.complete) {
       const height = layerHeights.layer3;
-      bgScroll.layer3X = drawParallaxLayer(layer3, bgScroll.layer3X, bgSpeed.layer3, PLAY_AREA_HEIGHT - height, height);
+      bgScroll.layer3X = drawParallaxLayer(
+        layer3,
+        bgScroll.layer3X,
+        bgSpeed.layer3,
+        PLAY_AREA_HEIGHT - height,
+        height
+      );
     }
 
     const layer2 = images[`${prefix}2`];
     if (layer2?.complete) {
       const height = layerHeights.layer2;
-      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - height, height);
+      bgScroll.layer2X = drawParallaxLayer(
+        layer2,
+        bgScroll.layer2X,
+        bgSpeed.layer2,
+        PLAY_AREA_HEIGHT - height,
+        height
+      );
     }
 
     const layer1 = images[`${prefix}1`];
     if (layer1?.complete) {
       const height = layerHeights.layer1;
-      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - height, height);
+      bgScroll.layer1X = drawParallaxLayer(
+        layer1,
+        bgScroll.layer1X,
+        bgSpeed.layer1,
+        PLAY_AREA_HEIGHT - height,
+        height
+      );
     }
 
     ctx.restore();
@@ -106,20 +124,34 @@
     const { canvas, bonusActive, missedDrops, maxMisses, score, highScore, isMobile } = state;
     const color = bonusActive ? "#222" : "#fff";
 
-    drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
+    drawText(
+      `Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`,
+      canvas.width / 2,
+      30,
+      20,
+      true,
+      color
+    );
 
     for (let i = 0; i < maxMisses; i++) {
       ctx.beginPath();
       const x = canvas.width / 2 - 120 + i * 25;
       ctx.arc(x, 60, 8, 0, 2 * Math.PI);
       ctx.strokeStyle = color;
-      ctx.fillStyle = i < (maxMisses - missedDrops) ? color : "transparent";
+      ctx.fillStyle = i < maxMisses - missedDrops ? color : "transparent";
       ctx.lineWidth = 2;
       ctx.fill();
       ctx.stroke();
     }
 
-    drawText(isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause", canvas.width / 2, 90, 16, true, "#aaa");
+    drawText(
+      isMobile ? "Double-tap to Pause" : "Press P or Esc to Pause",
+      canvas.width / 2,
+      90,
+      16,
+      true,
+      "#aaa"
+    );
 
     if (isMobile) {
       const legends = [
@@ -178,9 +210,12 @@
 
   function drawBanners() {
     const { ctx, images, canvas } = state;
-    if (state.showBonusBanner) ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
-    if (state.showFuelPriceBanner) ctx.drawImage(images.banner_increase, canvas.width / 2 - 150, 160, 300, 50);
-    if (state.showFuelDecreaseBanner) ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
+    if (state.showBonusBanner)
+      ctx.drawImage(images.banner_bonus, canvas.width / 2 - 150, 100, 300, 50);
+    if (state.showFuelPriceBanner)
+      ctx.drawImage(images.banner_increase, canvas.width / 2 - 150, 160, 300, 50);
+    if (state.showFuelDecreaseBanner)
+      ctx.drawImage(images.banner_decrease, canvas.width / 2 - 150, 220, 300, 50);
   }
 
   function drawStartScreen() {
@@ -259,19 +294,33 @@
 
   window.render = function () {
     clearCanvas();
-    drawCar();
-    for (let drop of state.drops) drawDrop(drop);
-    drawTopUI();
-    drawBanners();
-    drawExitButton();
 
-    // Draw nighttime filter overlay if active
+    // Draw night filter WITHIN play area, under car and drops, with color burn blend
     if (state.nightModeActive) {
       const filterImg = state.isMobile ? state.images.nt_filter_mobile : state.images.nt_filter_desktop;
       if (filterImg?.complete) {
-        state.ctx.drawImage(filterImg, 0, 0, state.canvas.width, state.canvas.height);
+        state.ctx.save();
+
+        state.ctx.beginPath();
+        state.ctx.rect(state.PLAY_AREA_LEFT, 0, state.PLAY_AREA_WIDTH, state.PLAY_AREA_HEIGHT);
+        state.ctx.clip();
+
+        state.ctx.globalCompositeOperation = "color-burn";
+
+        state.ctx.drawImage(filterImg, state.PLAY_AREA_LEFT, 0, state.PLAY_AREA_WIDTH, state.PLAY_AREA_HEIGHT);
+
+        state.ctx.globalCompositeOperation = "source-over";
+        state.ctx.restore();
       }
     }
+
+    drawCar();
+
+    for (let drop of state.drops) drawDrop(drop);
+
+    drawTopUI();
+    drawBanners();
+    drawExitButton();
   };
 
   window.renderStartScreen = drawStartScreen;
