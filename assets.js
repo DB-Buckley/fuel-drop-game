@@ -4,6 +4,7 @@
   const imagePaths = {
     // UI and game assets
     car: 'assets/car.png',
+    car_night: 'assets/car_night.png', // 🌙 Night mode car
     fuel_gold: 'assets/fuel_gold.png',
     fuel_bonus: 'assets/fuel_bonus.png',
     fuel_green: 'assets/fuel_green.png',
@@ -15,9 +16,9 @@
     splash_mobile: 'assets/splash_mobile.png',
 
     // 🌄 Parallax background layers – desktop
-    gbg_desktop_layer1: 'assets/games_screen/gbg_desktop_layer1.png', // road (front)
-    gbg_desktop_layer2: 'assets/games_screen/gbg_desktop_layer2.png', // trees (middle)
-    gbg_desktop_layer3: 'assets/games_screen/gbg_desktop_layer3.png', // mountains (back)
+    gbg_desktop_layer1: 'assets/games_screen/gbg_desktop_layer1.png',
+    gbg_desktop_layer2: 'assets/games_screen/gbg_desktop_layer2.png',
+    gbg_desktop_layer3: 'assets/games_screen/gbg_desktop_layer3.png',
 
     // 📱 Parallax background layers – mobile
     gbg_mobile_layer1: 'assets/games_screen/gbg_mobile_layer1.png',
