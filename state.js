@@ -22,8 +22,8 @@ const state = {
   car: {
     x: PLAY_AREA_LEFT + (PLAY_AREA_WIDTH - (PLAY_AREA_WIDTH * 0.20)),
     y: canvas.height - 100,
-    width: PLAY_AREA_WIDTH * 0.20,     // 8% of play area width
-    height: PLAY_AREA_WIDTH * 0.18,    // 4% of play area width
+    width: PLAY_AREA_WIDTH * 0.15,     // 8% of play area width
+    height: PLAY_AREA_WIDTH * 0.07,    // 4% of play area width
     baseColor: "#F5A623",
     bonusColor: "#00CFFF",
     color: "#F5A623",
