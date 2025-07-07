@@ -1,6 +1,11 @@
 (function () {
   const s = window.state;
 
+  // Add night cycle state variables
+  s.isNight = false;
+  s.nightCycleDuration = 45000; // 45 seconds ON or OFF
+  s.nightCycleTimer = 0;
+
   function toggleMobileControls() {
     const controls = document.getElementById("mobile-controls");
     if (!controls) return;
@@ -31,6 +36,10 @@
     s.showBonusBanner = false;
     s.showFuelPriceBanner = false;
     s.showFuelDecreaseBanner = false;
+
+    // Reset night cycle on game start
+    s.isNight = false;
+    s.nightCycleTimer = 0;
 
     toggleMobileControls();
   }
@@ -70,6 +79,14 @@
       window.updateDrops(16);
       window.updateBonus(16);
       window.updateDifficulty();
+
+      // Update night cycle timer and toggle isNight
+      s.nightCycleTimer += 16;
+      if (s.nightCycleTimer >= s.nightCycleDuration) {
+        s.isNight = !s.isNight;
+        s.nightCycleTimer = 0;
+      }
+
       window.render();
     }
 
