@@ -78,29 +78,50 @@
     requestAnimationFrame(mainLoop);
   }
 
-  // Load images from state.images
+  // Dynamically create and load all images
   function loadAllImages(callback) {
-    const images = s.images;
+    const imagePaths = {
+      car: "assets/car.png",
+      car_night: "assets/car_night.png", // ✅ new car for night mode
+      fuel_gold: "assets/fuel_gold.png",
+      fuel_bonus: "assets/fuel_bonus.png",
+      fuel_green: "assets/fuel_green.png",
+      banner_bonus: "assets/banner_bonus.png",
+      banner_increase: "assets/banner_increase.png",
+      banner_decrease: "assets/banner_decrease.png",
+      mzansiLogo: "assets/mzansi_logo.png",
+      splash_desktop: "assets/splash_desktop.png",
+      splash_mobile: "assets/splash_mobile.png",
+      gbg_desktop_layer1: "assets/bg_desktop_layer1.png",
+      gbg_desktop_layer2: "assets/bg_desktop_layer2.png",
+      gbg_desktop_layer3: "assets/bg_desktop_layer3.png",
+      gbg_mobile_layer1: "assets/bg_mobile_layer1.png",
+      gbg_mobile_layer2: "assets/bg_mobile_layer2.png",
+      gbg_mobile_layer3: "assets/bg_mobile_layer3.png",
+      nt_filter_desktop: "assets/night_filter_desktop.png",
+      nt_filter_mobile: "assets/night_filter_mobile.png"
+    };
+
     let loadedCount = 0;
-    const totalImages = Object.keys(images).length;
+    const keys = Object.keys(imagePaths);
+    const totalImages = keys.length;
 
-    for (const key in images) {
-      if (!images[key]) {
-        loadedCount++;
-        continue;
-      }
+    keys.forEach((key) => {
+      const img = new Image();
+      img.src = imagePaths[key];
+      s.images[key] = img;
 
-      images[key].onload = () => {
+      img.onload = () => {
         loadedCount++;
         if (loadedCount === totalImages) callback();
       };
 
-      images[key].onerror = () => {
+      img.onerror = () => {
         console.warn(`Failed to load image: ${key}`);
         loadedCount++;
         if (loadedCount === totalImages) callback();
       };
-    }
+    });
   }
 
   // Optional loading screen
