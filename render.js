@@ -45,7 +45,7 @@
 
     const layerHeights = {
       layer3: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
-      layer2: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
+      layer2: isMobile ? PLAY_AREA_HEIGHT * 1.1 : PLAY_AREA_HEIGHT * 1.0,
       layer1: isMobile ? PLAY_AREA_HEIGHT * 1.0 : PLAY_AREA_HEIGHT * 1.0,
     };
 
