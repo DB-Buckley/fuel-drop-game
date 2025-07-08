@@ -144,7 +144,7 @@
   function drawTopUI() {
     const ctx = state.ctx;
     const { canvas, bonusActive, missedDrops, maxMisses, score, highScore, isMobile } = state;
-    const color = bonusActive ? "#222" : "#fff";
+    const color = bonusActive ? "#fff" : "#fff";
 
     drawText(`Score: ${score} | Missed: ${missedDrops}/${maxMisses} | High Score: ${highScore}`, canvas.width / 2, 30, 20, true, color);
 
