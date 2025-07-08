@@ -48,7 +48,7 @@
 
   window.updateDrops = function (deltaTime) {
     for (let drop of state.drops) {
-      drop.y += state.dropSpeed * (deltaTime / 16);
+      drop.y += drop.speed * (deltaTime / 16);
 
       const collides =
         !drop.caught &&
