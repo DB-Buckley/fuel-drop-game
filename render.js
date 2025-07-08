@@ -97,25 +97,12 @@
 
   if (filterImg?.complete) {
     ctx.save();
-    ctx.globalAlpha = 0.8;
-    ctx.globalCompositeOperation = "color-burn";
+    ctx.globalAlpha = isMobile ? 0.6 : 0.8;
+    ctx.globalCompositeOperation = "multiply";
     ctx.drawImage(filterImg, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
     ctx.restore();
   }
 }
-
-
-    ctx.fillStyle = bonusActive ? "rgba(28,99,255,0.1)" : "rgba(0,0,0,0.05)";
-    ctx.fillRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
-
-    if (!isMobile) {
-      ctx.strokeStyle = bonusActive ? "#333" : "#666";
-      ctx.lineWidth = 4;
-      ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
-    }
-
-    ctx.restore();
-  }
 
   function drawCar() {
     const ctx = state.ctx;
