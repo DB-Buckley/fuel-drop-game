@@ -260,15 +260,37 @@
     }
   }
 
-  function drawGameOver() {
-    clearCanvas();
-    drawText("Game Over", state.canvas.width / 2, state.canvas.height / 2 - 40, 36, true);
-    drawText(`Final Score: ${state.score}`, state.canvas.width / 2, state.canvas.height / 2, 24, true);
-    drawText(`High Score: ${state.highScore}`, state.canvas.width / 2, state.canvas.height / 2 + 30, 24, true);
-    drawText("Tap or press Enter to Retry", state.canvas.width / 2, state.canvas.height / 2 + 70, 24, true);
-    const mobileControls = document.getElementById("mobile-controls");
-    if (mobileControls) mobileControls.style.display = "none";
+function drawGameOver() {
+  clearCanvas();
+
+  const { canvas, ctx, score, highScore, isMobile } = state;
+
+  drawText("Game Over", canvas.width / 2, canvas.height / 2 - 60, 36, true);
+  drawText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 - 20, 24, true);
+  drawText(`High Score: ${highScore}`, canvas.width / 2, canvas.height / 2 + 10, 24, true);
+  drawText("Tap or press Enter to Retry", canvas.width / 2, canvas.height / 2 + 50, 20, true);
+
+  // Show return button
+  const returnBtn = document.getElementById("return-start-btn");
+  if (returnBtn) {
+    returnBtn.style.display = "block";
+    returnBtn.style.position = "absolute";
+    returnBtn.style.left = "50%";
+    returnBtn.style.top = isMobile ? "75%" : "70%";
+    returnBtn.style.transform = "translate(-50%, -50%)";
+    returnBtn.style.padding = "10px 20px";
+    returnBtn.style.fontSize = "16px";
+    returnBtn.style.background = "#1c63ff";
+    returnBtn.style.color = "#fff";
+    returnBtn.style.border = "none";
+    returnBtn.style.borderRadius = "6px";
+    returnBtn.style.cursor = "pointer";
+    returnBtn.style.zIndex = "1000";
   }
+
+  const mobileControls = document.getElementById("mobile-controls");
+  if (mobileControls) mobileControls.style.display = "none";
+}
 
   window.render = function () {
     clearCanvas();
