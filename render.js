@@ -86,18 +86,24 @@
       );
     }
 
-    // 🌙 Nighttime overlay (80% opacity, color-burn)
-    if (nightModeActive) {
-      const filterImg = isMobile ? images.nt_filter_mobile : images.nt_filter_desktop;
+   if (nightModeActive) {
+  const forceDesktopNightFilter = true;
 
-      if (filterImg?.complete) {
-        ctx.save(); // Save current context (including alpha and blend mode)
-        ctx.globalAlpha = 0.8;
-        ctx.globalCompositeOperation = "color-burn";
-        ctx.drawImage(filterImg, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
-        ctx.restore(); // Restore to previous settings
-      }
-    }
+  const filterImg = (isMobile && forceDesktopNightFilter)
+    ? images.nt_filter_desktop
+    : isMobile
+      ? images.nt_filter_mobile
+      : images.nt_filter_desktop;
+
+  if (filterImg?.complete) {
+    ctx.save();
+    ctx.globalAlpha = 0.8;
+    ctx.globalCompositeOperation = "color-burn";
+    ctx.drawImage(filterImg, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    ctx.restore();
+  }
+}
+
 
     ctx.fillStyle = bonusActive ? "rgba(28,99,255,0.1)" : "rgba(0,0,0,0.05)";
     ctx.fillRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
@@ -125,7 +131,7 @@
 
     // Custom adjustment for car_night width due to beam
     if (nightModeActive) {
-      const beamOffset = isMobile ? 20 : 30; // adjust beam stretch based on platform
+      const beamOffset = isMobile ? 25 : 35; // adjust beam stretch based on platform
       width += beamOffset;
     }
 
