@@ -68,19 +68,18 @@
       bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - layerHeights.layer1, layerHeights.layer1);
     }
 
-    // 🌙 Nighttime overlay (60% opacity, color-burn)
-    if (nightModeActive) {
-      const filterImg = isMobile ? images.nt_filter_mobile : images.nt_filter_desktop;
-      if (filterImg?.complete) {
-        ctx.globalAlpha = 0.6;
-        ctx.globalCompositeOperation = "color-burn";
-        ctx.drawImage(filterImg, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
-        ctx.globalAlpha = 1.0;
-        ctx.globalCompositeOperation = "source-over";
-      }
-    }
+  // 🌙 Nighttime overlay (60% opacity, color-burn)
+if (nightModeActive) {
+  const filterImg = isMobile ? images.nt_filter_mobile : images.nt_filter_desktop;
 
-    ctx.restore();
+  if (filterImg?.complete) {
+    ctx.save(); // Save current context (including alpha and blend mode)
+    ctx.globalAlpha = 0.8;
+    ctx.globalCompositeOperation = "color-burn";
+    ctx.drawImage(filterImg, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    ctx.restore(); // Restore to previous settings
+  }
+}
 
     ctx.fillStyle = bonusActive ? "rgba(28,99,255,0.1)" : "rgba(0,0,0,0.05)";
     ctx.fillRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
