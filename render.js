@@ -97,7 +97,7 @@
 
   if (filterImg?.complete) {
     ctx.save();
-    ctx.globalAlpha = isMobile ? 0.6 : 0.8;
+    ctx.globalAlpha = state.nightFilterAlpha;
     ctx.globalCompositeOperation = "multiply";
     ctx.drawImage(filterImg, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
     ctx.restore();
