@@ -30,7 +30,6 @@
       caught: false,
       bonus: false,
       slowDown: false,
-      speed: 2 + Math.random() * 2.5, // Speed between 2 and 4.5
     };
 
     if (!state.bonusActive && !state.lastDropBonus && rand < 0.1) {
@@ -49,7 +48,7 @@
 
   window.updateDrops = function (deltaTime) {
     for (let drop of state.drops) {
-      drop.y += drop.speed * (deltaTime / 16);
+      drop.y += state.dropSpeed * (deltaTime / 16);
 
       const collides =
         !drop.caught &&
