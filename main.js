@@ -12,6 +12,13 @@
     }
   }
 
+  function toggleReturnButton(show) {
+    const btn = document.getElementById("return-start-screen");
+    if (btn) {
+      btn.style.display = show ? "block" : "none";
+    }
+  }
+
   function startGame() {
     s.gameStarted = true;
     s.gameOver = false;
@@ -35,6 +42,7 @@
     s.nightModeActive = false;
 
     toggleMobileControls();
+    toggleReturnButton(false);
   }
 
   function resetGame() {
@@ -44,6 +52,7 @@
     s.playerName = "";
 
     toggleMobileControls();
+    toggleReturnButton(false);
   }
 
   function mainLoop(timestamp) {
@@ -52,6 +61,7 @@
     } else if (s.gameOver) {
       window.renderGameOver();
       toggleMobileControls();
+      toggleReturnButton(true);
     } else if (s.paused) {
       window.render();
       const ctx = s.ctx;
@@ -78,7 +88,6 @@
     requestAnimationFrame(mainLoop);
   }
 
-  // Dynamically create and load all images
   function loadAllImages(callback) {
     const imagePaths = {
       car: "assets/car.png",
@@ -124,7 +133,7 @@
     });
   }
 
-  // Optional loading screen
+  // Initial loading screen
   s.ctx.fillStyle = "#000";
   s.ctx.fillRect(0, 0, s.canvas.width, s.canvas.height);
   s.ctx.fillStyle = "#fff";
@@ -142,24 +151,50 @@
   window.resetGame = resetGame;
   window.mainLoop = mainLoop;
 
-  // ✅ Automatically start game on click or Enter
-  s.canvas.addEventListener("click", () => {
-    if (!s.gameStarted && !s.gameOver) {
-      startGame();
-    } else if (s.gameOver) {
-      resetGame();
-      startGame();
-    }
-  });
+  // =============== INTERACTION HANDLING ==============
 
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
+  const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
+
+  // Desktop only: Start on canvas click or Enter
+  if (!isMobile) {
+    s.canvas.addEventListener("click", () => {
       if (!s.gameStarted && !s.gameOver) {
         startGame();
       } else if (s.gameOver) {
         resetGame();
         startGame();
       }
-    }
-  });
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        if (!s.gameStarted && !s.gameOver) {
+          startGame();
+        } else if (s.gameOver) {
+          resetGame();
+          startGame();
+        }
+      }
+    });
+  }
+
+  // Mobile-only start button
+  const mobileStartBtn = document.getElementById("mobile-start-btn");
+  if (mobileStartBtn) {
+    mobileStartBtn.addEventListener("click", () => {
+      const nameInput = document.getElementById("mobile-player-name");
+      if (nameInput?.value.trim()) {
+        s.playerName = nameInput.value.trim().slice(0, 12);
+        startGame();
+      }
+    });
+  }
+
+  // Return to Start Screen button (shown on Game Over)
+  const returnBtn = document.getElementById("return-start-btn");
+  if (returnBtn) {
+    returnBtn.addEventListener("click", () => {
+      resetGame();
+    });
+  }
 })();
