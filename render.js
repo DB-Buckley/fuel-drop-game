@@ -304,7 +304,7 @@
       returnBtn.style.display = "block";
       returnBtn.style.position = "absolute";
       returnBtn.style.left = "50%";
-      returnBtn.style.top = "60%";
+      returnBtn.style.top = "50%";
       returnBtn.style.transform = "translate(-50%, -50%)";
       returnBtn.style.padding = "12px 24px";
       returnBtn.style.fontSize = "18px";
