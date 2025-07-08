@@ -120,7 +120,7 @@
 
     // Custom adjustment for car_night width due to beam
     if (nightModeActive) {
-      const beamOffset = isMobile ? 25 : 35; // adjust beam stretch based on platform
+      const beamOffset = isMobile ? 30 : 40; // adjust beam stretch based on platform
       width += beamOffset;
     }
 
