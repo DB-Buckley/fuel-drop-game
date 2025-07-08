@@ -45,7 +45,7 @@
     ctx.rect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
     ctx.clip();
 
-    const prefix = isMobile ? 'gbg_mobile_layer' : 'gbg_desktop_layer';
+    const prefix = isMobile ? "gbg_mobile_layer" : "gbg_desktop_layer";
 
     const layerHeights = {
       layer3: PLAY_AREA_HEIGHT,
@@ -55,31 +55,49 @@
 
     const layer3 = images[`${prefix}3`];
     if (layer3?.complete) {
-      bgScroll.layer3X = drawParallaxLayer(layer3, bgScroll.layer3X, bgSpeed.layer3, PLAY_AREA_HEIGHT - layerHeights.layer3, layerHeights.layer3);
+      bgScroll.layer3X = drawParallaxLayer(
+        layer3,
+        bgScroll.layer3X,
+        bgSpeed.layer3,
+        PLAY_AREA_HEIGHT - layerHeights.layer3,
+        layerHeights.layer3
+      );
     }
 
     const layer2 = images[`${prefix}2`];
     if (layer2?.complete) {
-      bgScroll.layer2X = drawParallaxLayer(layer2, bgScroll.layer2X, bgSpeed.layer2, PLAY_AREA_HEIGHT - layerHeights.layer2, layerHeights.layer2);
+      bgScroll.layer2X = drawParallaxLayer(
+        layer2,
+        bgScroll.layer2X,
+        bgSpeed.layer2,
+        PLAY_AREA_HEIGHT - layerHeights.layer2,
+        layerHeights.layer2
+      );
     }
 
     const layer1 = images[`${prefix}1`];
     if (layer1?.complete) {
-      bgScroll.layer1X = drawParallaxLayer(layer1, bgScroll.layer1X, bgSpeed.layer1, PLAY_AREA_HEIGHT - layerHeights.layer1, layerHeights.layer1);
+      bgScroll.layer1X = drawParallaxLayer(
+        layer1,
+        bgScroll.layer1X,
+        bgSpeed.layer1,
+        PLAY_AREA_HEIGHT - layerHeights.layer1,
+        layerHeights.layer1
+      );
     }
 
-  // 🌙 Nighttime overlay (60% opacity, color-burn)
-if (nightModeActive) {
-  const filterImg = isMobile ? images.nt_filter_mobile : images.nt_filter_desktop;
+    // 🌙 Nighttime overlay (80% opacity, color-burn)
+    if (nightModeActive) {
+      const filterImg = isMobile ? images.nt_filter_mobile : images.nt_filter_desktop;
 
-  if (filterImg?.complete) {
-    ctx.save(); // Save current context (including alpha and blend mode)
-    ctx.globalAlpha = 0.8;
-    ctx.globalCompositeOperation = "color-burn";
-    ctx.drawImage(filterImg, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
-    ctx.restore(); // Restore to previous settings
-  }
-}
+      if (filterImg?.complete) {
+        ctx.save(); // Save current context (including alpha and blend mode)
+        ctx.globalAlpha = 0.8;
+        ctx.globalCompositeOperation = "color-burn";
+        ctx.drawImage(filterImg, PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+        ctx.restore(); // Restore to previous settings
+      }
+    }
 
     ctx.fillStyle = bonusActive ? "rgba(28,99,255,0.1)" : "rgba(0,0,0,0.05)";
     ctx.fillRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
@@ -89,29 +107,30 @@ if (nightModeActive) {
       ctx.lineWidth = 4;
       ctx.strokeRect(PLAY_AREA_LEFT, 0, PLAY_AREA_WIDTH, canvas.height);
     }
+
+    ctx.restore();
   }
 
   function drawCar() {
-  const ctx = state.ctx;
-  const { nightModeActive, images, car, isMobile } = state;
+    const ctx = state.ctx;
+    const { nightModeActive, images, car, isMobile } = state;
 
-  const img = nightModeActive ? images.car_night : images.car;
+    const img = nightModeActive ? images.car_night : images.car;
 
-  if (!img?.complete) return;
+    if (!img?.complete) return;
 
-  // Default size
-  let width = car.width;
-  let height = car.height;
+    // Default size
+    let width = car.width;
+    let height = car.height;
 
-  // Custom adjustment for car_night
-  if (nightModeActive) {
-    const beamOffset = isMobile ? 20 : 30; // adjust beam stretch based on platform
-    width += beamOffset;
+    // Custom adjustment for car_night width due to beam
+    if (nightModeActive) {
+      const beamOffset = isMobile ? 20 : 30; // adjust beam stretch based on platform
+      width += beamOffset;
+    }
+
+    ctx.drawImage(img, car.x, car.y, width, height);
   }
-
-  ctx.drawImage(img, car.x, car.y, width, height);
-}
-
 
   function drawDrop(drop) {
     let img = state.images.fuel_gold;
@@ -141,7 +160,7 @@ if (nightModeActive) {
       const x = canvas.width / 2 - 120 + i * 25;
       ctx.arc(x, 60, 8, 0, 2 * Math.PI);
       ctx.strokeStyle = color;
-      ctx.fillStyle = i < (maxMisses - missedDrops) ? color : "transparent";
+      ctx.fillStyle = i < maxMisses - missedDrops ? color : "transparent";
       ctx.lineWidth = 2;
       ctx.fill();
       ctx.stroke();
@@ -274,37 +293,42 @@ if (nightModeActive) {
     }
   }
 
-function drawGameOver() {
-  clearCanvas();
+  function drawGameOver() {
+    clearCanvas();
 
-  const { canvas, ctx, score, highScore, isMobile } = state;
+    const { canvas, ctx, score, highScore, isMobile } = state;
 
-  drawText("Game Over", canvas.width / 2, canvas.height / 2 - 60, 36, true);
-  drawText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 - 20, 24, true);
-  drawText(`High Score: ${highScore}`, canvas.width / 2, canvas.height / 2 + 10, 24, true);
-  drawText("Tap or press Enter to Retry", canvas.width / 2, canvas.height / 2 + 50, 20, true);
+    drawText("Game Over", canvas.width / 2, canvas.height / 2 - 60, 36, true);
+    drawText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 - 20, 24, true);
+    drawText(`High Score: ${highScore}`, canvas.width / 2, canvas.height / 2 + 10, 24, true);
+    drawText("Tap or press Enter to Retry", canvas.width / 2, canvas.height / 2 + 50, 20, true);
 
-  // Center "Return to Start" button
-  const returnBtn = document.getElementById("return-start-btn");
-  if (returnBtn) {
-    returnBtn.style.display = "block";
-    returnBtn.style.position = "absolute";
-    returnBtn.style.left = "50%";
-    returnBtn.style.top = "60%";
-    returnBtn.style.transform = "translate(-50%, -50%)";
-    returnBtn.style.padding = "12px 24px";
-    returnBtn.style.fontSize = "18px";
-    returnBtn.style.background = "#1c63ff";
-    returnBtn.style.color = "#fff";
-    returnBtn.style.border = "none";
-    returnBtn.style.borderRadius = "6px";
-    returnBtn.style.cursor = "pointer";
-    returnBtn.style.zIndex = "1000";
+    // Show return button
+    const returnBtn = document.getElementById("return-start-btn");
+    if (returnBtn) {
+      returnBtn.style.display = "block";
+      returnBtn.style.position = "absolute";
+      returnBtn.style.left = "50%";
+      returnBtn.style.top = "60%";
+      returnBtn.style.transform = "translate(-50%, -50%)";
+      returnBtn.style.padding = "12px 24px";
+      returnBtn.style.fontSize = "18px";
+      returnBtn.style.background = "#1c63ff";
+      returnBtn.style.color = "#fff";
+      returnBtn.style.border = "none";
+      returnBtn.style.borderRadius = "6px";
+      returnBtn.style.cursor = "pointer";
+      returnBtn.style.zIndex = "1000";
+    }
+
+    // Hide mobile controls during game over
+    const mobileControls = document.getElementById("mobile-controls");
+    if (mobileControls) mobileControls.style.display = "none";
+
+    // Draw legends and exit button on game over screen
+    drawTopUI();
+    drawExitButton();
   }
-
-  const mobileControls = document.getElementById("mobile-controls");
-  if (mobileControls) mobileControls.style.display = "none";
-}
 
   window.render = function () {
     clearCanvas();
