@@ -32,23 +32,20 @@
   window.moveLeft = moveLeft;
   window.moveRight = moveRight;
 
-  // --- KEYBOARD INPUT (Desktop) ---
+  // === KEYBOARD INPUT (desktop) ===
   document.addEventListener("keydown", (e) => {
     const isTyping = document.activeElement === nameInput;
     const isMobile = s.isMobile;
 
-    // === Desktop name input logic ===
     if (!s.gameStarted && !s.gameOver && !isMobile && !isTyping) {
       if (/^[a-zA-Z0-9 ]$/.test(e.key) && s.playerName.length < 12) {
         s.playerName += e.key;
         return;
       }
-
       if (e.key === "Backspace") {
         s.playerName = s.playerName.slice(0, -1);
         return;
       }
-
       if (e.key === "Enter" && s.playerName.length > 0) {
         window.startGame();
         mobileControls?.classList.add("hidden");
@@ -56,7 +53,6 @@
       }
     }
 
-    // === Game controls (both platforms) ===
     if (["ArrowLeft", "a", "A"].includes(e.key)) moveLeft();
     if (["ArrowRight", "d", "D"].includes(e.key)) moveRight();
 
@@ -71,21 +67,16 @@
     }
   });
 
-  // --- MOUSE INPUT ---
+  // === MOUSE INPUT ===
   canvas.addEventListener("mousedown", (e) => {
     if (checkExitClick(e.clientX, e.clientY)) {
       window.resetGame();
       return;
     }
-    if (s.gameOver) {
-      window.resetGame();
-      window.startGame();
-      mobileControls?.classList.add("hidden");
-    } else {
-      isDragging = true;
-      car.x = e.clientX - car.width / 2;
-      clampCarPosition();
-    }
+    if (s.gameOver) return; // ❌ prevent auto-restart on game over
+    isDragging = true;
+    car.x = e.clientX - car.width / 2;
+    clampCarPosition();
   });
 
   canvas.addEventListener("mousemove", (e) => {
@@ -99,7 +90,7 @@
     isDragging = false;
   });
 
-  // --- TOUCH INPUT ---
+  // === TOUCH INPUT ===
   canvas.addEventListener("touchstart", (e) => {
     if (e.target === nameInput || nameInput?.contains(e.target)) return;
 
@@ -115,15 +106,11 @@
       return;
     }
 
-    if (s.gameOver) {
-      window.resetGame();
-      window.startGame();
-      mobileControls?.classList.add("hidden");
-    } else {
-      isDragging = true;
-      car.x = touch.clientX - car.width / 2;
-      clampCarPosition();
-    }
+    if (s.gameOver) return; // ❌ prevent auto-restart on game over
+
+    isDragging = true;
+    car.x = touch.clientX - car.width / 2;
+    clampCarPosition();
   });
 
   canvas.addEventListener("touchmove", (e) => {
@@ -143,13 +130,17 @@
     isDragging = false;
   });
 
-  // --- TAP TO RESTART ---
+  // === DISABLE TAP TO START / RESTART ON CANVAS (especially mobile) ===
   canvas.addEventListener("click", (e) => {
     if (checkExitClick(e.clientX, e.clientY)) {
       window.resetGame();
       return;
     }
 
+    // ✅ Do not auto-restart on mobile tap
+    if (s.isMobile) return;
+
+    // For desktop, allow click-to-restart
     if (s.gameOver) {
       window.resetGame();
       window.startGame();
@@ -157,7 +148,7 @@
     }
   });
 
-  // --- MOBILE START BUTTON ---
+  // === MOBILE START BUTTON ===
   document.addEventListener("DOMContentLoaded", () => {
     const startBtn = document.getElementById("mobile-start-btn");
 
@@ -173,9 +164,16 @@
         mobileControls?.classList.add("hidden");
       });
     }
+
+    const returnBtn = document.getElementById("return-start-btn");
+    if (returnBtn) {
+      returnBtn.addEventListener("click", () => {
+        window.resetGame();
+      });
+    }
   });
 
-  // --- Exit Button Hit Test ---
+  // === EXIT BUTTON ZONE CHECK ===
   function checkExitClick(x, y) {
     const { isMobile, canvas } = s;
     const btnW = isMobile ? 40 : 80;
