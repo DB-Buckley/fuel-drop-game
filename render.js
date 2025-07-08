@@ -92,11 +92,26 @@ if (nightModeActive) {
   }
 
   function drawCar() {
-    const img = state.nightModeActive ? state.images.car_night : state.images.car;
-    if (img?.complete) {
-      state.ctx.drawImage(img, state.car.x, state.car.y, state.car.width, state.car.height);
-    }
+  const ctx = state.ctx;
+  const { nightModeActive, images, car, isMobile } = state;
+
+  const img = nightModeActive ? images.car_night : images.car;
+
+  if (!img?.complete) return;
+
+  // Default size
+  let width = car.width;
+  let height = car.height;
+
+  // Custom adjustment for car_night
+  if (nightModeActive) {
+    const beamOffset = isMobile ? 20 : 30; // adjust beam stretch based on platform
+    width += beamOffset;
   }
+
+  ctx.drawImage(img, car.x, car.y, width, height);
+}
+
 
   function drawDrop(drop) {
     let img = state.images.fuel_gold;
