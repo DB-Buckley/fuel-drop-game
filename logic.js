@@ -30,6 +30,7 @@
       caught: false,
       bonus: false,
       slowDown: false,
+      speed: 2 + Math.random() * 2.5, // Speed between 2 and 4.5
     };
 
     if (!state.bonusActive && !state.lastDropBonus && rand < 0.1) {
