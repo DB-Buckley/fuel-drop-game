@@ -31,7 +31,7 @@
     s.lastDropGreen = false;
     s.lastDropY = -50;
     s.lastSpawn = Date.now();
-    s.dropSpeed = 2;
+    s.dropSpeed = 2 + Math.random() * 2.5; // range: 2.0 to 4.5;
     s.spawnInterval = 1000;
     s.nextDifficultyThreshold = 300;
     s.fuelIncreases = 0;
