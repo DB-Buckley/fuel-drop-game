@@ -120,6 +120,24 @@ const state = {
   nightModeActive: false,
   nightCycleTimer: 0,
   nightCycleDuration: 90000, // Full loop: 45s day + 45s night
+
+  // ✨ Night filter fade support
+  nightFilterAlpha: 0,
+  nightFilterFadingIn: false,
+  nightFilterFadingOut: false,
+  nightFilterMaxAlpha: 0.8,
+  nightFilterFadeSpeed: 0.02,
 };
 
 window.state = state;
+
+// 🔁 Fade control functions
+window.fadeInNightFilter = function () {
+  state.nightFilterFadingIn = true;
+  state.nightFilterFadingOut = false;
+};
+
+window.fadeOutNightFilter = function () {
+  state.nightFilterFadingOut = true;
+  state.nightFilterFadingIn = false;
+};
