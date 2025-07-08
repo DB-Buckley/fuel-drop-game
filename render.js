@@ -103,6 +103,8 @@
     ctx.restore();
   }
 }
+  ctx.restore();
+  }
 
   function drawCar() {
     const ctx = state.ctx;
@@ -323,6 +325,8 @@
     drawExitButton();
   }
 
+  window.renderStartScreen = drawStartScreen;
+  window.renderGameOver = drawGameOver;
   window.render = function () {
     clearCanvas();
     drawCar();
@@ -331,9 +335,6 @@
     drawBanners();
     drawExitButton();
   };
-
-  window.renderStartScreen = drawStartScreen;
-  window.renderGameOver = drawGameOver;
 
   function positionLeaderboardBox() {
     const box = document.getElementById("leaderboard-box");
