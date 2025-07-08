@@ -32,6 +32,7 @@
 
   const images = {};
   s.images = images;
+  img.crossOrigin = "anonymous";
 
   function loadImages(callback) {
     const keys = Object.keys(imagePaths);
