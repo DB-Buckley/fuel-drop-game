@@ -270,16 +270,16 @@ function drawGameOver() {
   drawText(`High Score: ${highScore}`, canvas.width / 2, canvas.height / 2 + 10, 24, true);
   drawText("Tap or press Enter to Retry", canvas.width / 2, canvas.height / 2 + 50, 20, true);
 
-  // Show return button
+  // Center "Return to Start" button
   const returnBtn = document.getElementById("return-start-btn");
   if (returnBtn) {
     returnBtn.style.display = "block";
     returnBtn.style.position = "absolute";
     returnBtn.style.left = "50%";
-    returnBtn.style.top = isMobile ? "75%" : "70%";
+    returnBtn.style.top = "60%";
     returnBtn.style.transform = "translate(-50%, -50%)";
-    returnBtn.style.padding = "10px 20px";
-    returnBtn.style.fontSize = "16px";
+    returnBtn.style.padding = "12px 24px";
+    returnBtn.style.fontSize = "18px";
     returnBtn.style.background = "#1c63ff";
     returnBtn.style.color = "#fff";
     returnBtn.style.border = "none";
