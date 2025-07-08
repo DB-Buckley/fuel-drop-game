@@ -56,37 +56,61 @@
   }
 
   function mainLoop(timestamp) {
-    if (!s.gameStarted) {
-      window.renderStartScreen();
-    } else if (s.gameOver) {
-      window.renderGameOver();
-      toggleMobileControls();
-      toggleReturnButton(true);
-    } else if (s.paused) {
-      window.render();
-      const ctx = s.ctx;
-      ctx.fillStyle = "rgba(0,0,0,0.6)";
-      ctx.fillRect(0, 0, s.canvas.width, s.canvas.height);
-      ctx.fillStyle = "#fff";
-      ctx.font = "48px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("Paused", s.canvas.width / 2, s.canvas.height / 2);
-    } else {
-      const now = Date.now();
-      const deltaTime = now - (s.lastFrameTime || now);
-      s.lastFrameTime = now;
+  if (!s.gameStarted) {
+    window.renderStartScreen();
+  } else if (s.gameOver) {
+    window.renderGameOver();
+    toggleMobileControls();
+    toggleReturnButton(true);
+  } else if (s.paused) {
+    window.render();
+    const ctx = s.ctx;
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
+    ctx.fillRect(0, 0, s.canvas.width, s.canvas.height);
+    ctx.fillStyle = "#fff";
+    ctx.font = "48px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Paused", s.canvas.width / 2, s.canvas.height / 2);
+  } else {
+    const now = Date.now();
+    const deltaTime = now - (s.lastFrameTime || now);
+    s.lastFrameTime = now;
 
-      if (now - s.lastSpawn > s.spawnInterval) {
-        window.spawnDrop();
-        s.lastSpawn = now;
-      }
-
-      window.update(deltaTime);
-      window.render();
+    // Spawn drop if interval passed
+    if (now - s.lastSpawn > s.spawnInterval) {
+      window.spawnDrop();
+      s.lastSpawn = now;
     }
 
-    requestAnimationFrame(mainLoop);
+    // === Update night filter alpha if fading ===
+    if (s.nightFilterFadingIn) {
+      s.nightFilterAlpha = Math.min(s.nightFilterAlpha + s.nightFilterFadeSpeed, s.nightFilterMaxAlpha);
+      if (s.nightFilterAlpha >= s.nightFilterMaxAlpha) s.nightFilterFadingIn = false;
+    } else if (s.nightFilterFadingOut) {
+      s.nightFilterAlpha = Math.max(s.nightFilterAlpha - s.nightFilterFadeSpeed, 0);
+      if (s.nightFilterAlpha <= 0) s.nightFilterFadingOut = false;
+    }
+
+    // === Toggle night mode every 45s ===
+    s.nightCycleTimer += deltaTime;
+    const cycleHalf = s.nightCycleDuration / 2;
+
+    if (!s.nightModeActive && s.nightCycleTimer > cycleHalf) {
+      s.nightModeActive = true;
+      window.fadeInNightFilter();
+    } else if (s.nightModeActive && s.nightCycleTimer > s.nightCycleDuration) {
+      s.nightModeActive = false;
+      window.fadeOutNightFilter();
+      s.nightCycleTimer = 0;
+    }
+
+    // === Update game state & render ===
+    window.update(deltaTime);
+    window.render();
   }
+
+  requestAnimationFrame(mainLoop);
+}
 
   function loadAllImages(callback) {
     const imagePaths = {
